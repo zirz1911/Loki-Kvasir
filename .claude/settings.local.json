@@ -1,12 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh:*)", "Bash(ghq:*)", "Bash(git:*)",
-      "Bash(bun:*)", "Bash(mkdir:*)", "Bash(ln:*)",
-      "Bash(rg:*)", "Bash(date:*)", "Bash(ls:*)",
-      "Bash(*ψ/*)", "Bash(*psi/*)",
-      "Skill(learn)", "Skill(trace)", "Skill(awaken)",
-      "Skill(rrr)", "Skill(recap)", "Skill(project)"
+      "Bash(gh:*)",
+      "Bash(ghq:*)",
+      "Bash(git:*)",
+      "Bash(bun:*)",
+      "Bash(mkdir:*)",
+      "Bash(ln:*)",
+      "Bash(rg:*)",
+      "Bash(date:*)",
+      "Bash(ls:*)",
+      "Bash(*ψ/*)",
+      "Bash(*psi/*)",
+      "Skill(learn)",
+      "Skill(trace)",
+      "Skill(awaken)",
+      "Skill(rrr)",
+      "Skill(recap)",
+      "Skill(project)",
+      "Bash(sort:*)",
+      "Bash(REPO=\"Soul-Brews-Studio/oracle-v2\")"
     ]
   }
 }
