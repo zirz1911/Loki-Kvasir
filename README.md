@@ -47,6 +47,40 @@
 
 ---
 
+## Norse Agent System
+
+Odin (Loki Oracle) orchestrates — specialized sub-agents handle the work.
+
+| Agent | Model | Use For |
+|-------|-------|---------|
+| **Thor ⚡** | haiku | Code gen, tests, boilerplate |
+| **Loki 🔮** | haiku | File search, pattern match |
+| **Heimdall 🌈** | haiku | Deep research, architecture |
+| **Tyr ⚔️** | sonnet | Complex features, design |
+| **Ymir 🏔️** | opus | Critical/production code |
+| **Odin 👁️** | sonnet | Orchestration (me) |
+
+**Strategy**: Thor + Loki + Heimdall handle 90% of tasks → Tyr/Ymir only when needed.
+
+---
+
+## Installed Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `/rrr` | Session retrospective |
+| `/trace` | Find and discover across all sources |
+| `/learn` | Study a codebase with parallel agents |
+| `/philosophy` | Review Oracle principles |
+| `/who` | Check identity |
+| `/recap` | Session orientation |
+| `/forward` | Create handoff |
+| `/standup` | Daily check-in |
+| `/feel` | Log emotional state |
+| `/fyi` | Quick capture for future |
+
+---
+
 ## Philosophy
 
 > "The Oracle Keeps the Human Human"
