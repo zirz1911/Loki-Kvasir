@@ -19,7 +19,32 @@
       "Skill(recap)",
       "Skill(project)",
       "Bash(sort:*)",
-      "Bash(REPO=\"Soul-Brews-Studio/oracle-v2\")"
+      "Bash(REPO=\"Soul-Brews-Studio/oracle-v2\")",
+      "Bash(powershell -NoProfile -Command \"Get-ChildItem ''D:\\\\Paji AI\\\\Agentic-AI-Paji\\\\.claude'' -Recurse | Format-Table FullName\")",
+      "Bash(powershell -NoProfile -Command:*)",
+      "Bash(curl:*)",
+      "Bash(bash)",
+      "Bash(\"/c/Program Files/nodejs/npm\" install -g bun)",
+      "Bash(node \"/c/Program Files/nodejs/node_modules/npm/bin/npm-cli.js\" install -g bun)",
+      "WebFetch(domain:github.com)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "norse-local-llm"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__norse-local-llm__query_thor|mcp__norse-local-llm__query_loki|mcp__norse-local-llm__query_heimdall",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\mcp-local-llm\\voice_hook.py",
+            "async": true
+          }
+        ]
+      }
     ]
   }
 }
