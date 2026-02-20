@@ -38,7 +38,8 @@
       "Bash(cmd.exe /c \"dir D:\\\\ /b /a\")",
       "Bash(cmd.exe /c \"dir D:\\\\ \")",
       "Bash(powershell.exe -Command \"Get-ChildItem ''D:\\\\'' -ErrorAction SilentlyContinue | Select-Object Name\")",
-      "Bash(powershell.exe -Command:*)"
+      "Bash(powershell.exe -Command:*)",
+      "mcp__norse-local-llm__query_thor"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -63,8 +64,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\.claude\\subagent_tracker.py",
-            "async": true
+            "command": "python3 D:/Loki-Oracle/Loki-Oracle/.claude/subagent_tracker.py"
           }
         ]
       }
@@ -80,8 +80,7 @@
           },
           {
             "type": "command",
-            "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\.claude\\subagent_tracker.py",
-            "async": true
+            "command": "python3 D:/Loki-Oracle/Loki-Oracle/.claude/subagent_tracker.py"
           }
         ]
       },
@@ -90,8 +89,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\.claude\\subagent_tracker.py",
-            "async": true
+            "command": "python3 D:/Loki-Oracle/Loki-Oracle/.claude/subagent_tracker.py"
           }
         ]
       }
