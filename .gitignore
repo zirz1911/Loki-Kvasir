@@ -1,5 +1,6 @@
 # Local machine settings — not for sharing
 .claude/settings.local.json
+.mcp.json
 
 # Claude Code active state
 .claude/todos.json
