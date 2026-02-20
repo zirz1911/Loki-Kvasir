@@ -1,0 +1,9 @@
+# Local machine settings — not for sharing
+.claude/settings.local.json
+
+# Claude Code active state
+.claude/todos.json
+
+# Logs & temp
+ψ/memory/logs/
+ψ/active/
