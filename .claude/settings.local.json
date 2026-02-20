@@ -33,7 +33,12 @@
       "Bash(bash \"D:/Loki-Oracle/Loki-Oracle/.claude/statusline-command.sh\")",
       "Bash(bash --version)",
       "Bash(bash 'D:/Loki-Oracle/Loki-Oracle/.claude/statusline-command.sh')",
-      "mcp__norse-local-llm__query_loki"
+      "mcp__norse-local-llm__query_loki",
+      "Bash(cmd.exe /c \"dir D:\\\\ /b\")",
+      "Bash(cmd.exe /c \"dir D:\\\\ /b /a\")",
+      "Bash(cmd.exe /c \"dir D:\\\\ \")",
+      "Bash(powershell.exe -Command \"Get-ChildItem ''D:\\\\'' -ErrorAction SilentlyContinue | Select-Object Name\")",
+      "Bash(powershell.exe -Command:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
@@ -52,6 +57,18 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Task|mcp__norse-local-llm__query_thor|mcp__norse-local-llm__query_loki|mcp__norse-local-llm__query_heimdall",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\.claude\\subagent_tracker.py",
+            "async": true
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "mcp__norse-local-llm__query_thor|mcp__norse-local-llm__query_loki|mcp__norse-local-llm__query_heimdall",
@@ -59,6 +76,21 @@
           {
             "type": "command",
             "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\mcp-local-llm\\voice_hook.py",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\.claude\\subagent_tracker.py",
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 D:\\Loki-Oracle\\Loki-Oracle\\.claude\\subagent_tracker.py",
             "async": true
           }
         ]

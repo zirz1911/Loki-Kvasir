@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, json, time
+import sys, json, time, os, tempfile
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -15,10 +15,10 @@ used     = (data.get("context_window") or {}).get("used_percentage")
 vim_mode = (data.get("vim") or {}).get("mode", "")
 agent    = (data.get("agent") or {}).get("name", "")
 
-cost_usd    = (data.get("cost") or {}).get("total_cost_usd")
-tok_in      = (data.get("context_window") or {}).get("total_input_tokens", 0) or 0
-tok_out     = (data.get("context_window") or {}).get("total_output_tokens", 0) or 0
-total_tok   = tok_in + tok_out
+cost_usd  = (data.get("cost") or {}).get("total_cost_usd")
+tok_in    = (data.get("context_window") or {}).get("total_input_tokens", 0) or 0
+tok_out   = (data.get("context_window") or {}).get("total_output_tokens", 0) or 0
+total_tok = tok_in + tok_out
 
 # --- ANSI colors ---
 RST  = "\033[0m";  BOLD = "\033[1m";  DIM  = "\033[2m"
@@ -49,10 +49,7 @@ else:
 
 # --- Tokens ---
 if total_tok > 0:
-    if total_tok >= 1000:
-        tok_str = f"{total_tok/1000:.1f}k"
-    else:
-        tok_str = str(total_tok)
+    tok_str = f"{total_tok/1000:.1f}k" if total_tok >= 1000 else str(total_tok)
     tok_display = f"{TEAL}{tok_str} tok{RST}"
 else:
     tok_display = f"{DIM}0 tok{RST}"
@@ -60,31 +57,55 @@ else:
 # --- Cost ---
 if cost_usd is not None:
     if cost_usd >= 1.0:
-        cost_str = f"${cost_usd:.2f}"
-        cost_col = RED
+        cost_str, cost_col = f"${cost_usd:.2f}", RED
     elif cost_usd >= 0.1:
-        cost_str = f"${cost_usd:.3f}"
-        cost_col = YLW
+        cost_str, cost_col = f"${cost_usd:.3f}", YLW
     else:
-        cost_str = f"${cost_usd:.4f}"
-        cost_col = GRN
+        cost_str, cost_col = f"${cost_usd:.4f}", GRN
     cost_display = f"{cost_col}{cost_str}{RST}"
 else:
     cost_display = f"{DIM}$—{RST}"
 
 # --- Agent ---
-AGENT_ICONS = {
-    "thor":     "⚡Thor",
-    "loki":     "🔮Loki",
-    "heimdall": "🌈Heimdall",
-    "tyr":      "⚔️Tyr",
-    "ymir":     "🏔️Ymir",
+AGENT_MAP = {
+    "thor":     ("⚡", "Thor"),
+    "loki":     ("🔮", "Loki"),
+    "heimdall": ("🌈", "Heimdall"),
+    "tyr":      ("⚔️", "Tyr"),
+    "ymir":     ("🏔️", "Ymir"),
+    "odin":     ("👁️", "Odin"),
 }
+
+def model_to_icon_name(model_str):
+    m = model_str.lower()
+    if "haiku" in m: return ("⚡", "Thor")
+    if "opus"  in m: return ("🏔️", "Ymir")
+    return ("👁️", "Odin")
+
+# Base agent: explicit > model inference
 if agent:
-    icon = AGENT_ICONS.get(agent.lower(), f"◆{agent}")
-    agent_display = f"{MAG}{BOLD}{icon}{RST}"
+    icon, name = AGENT_MAP.get(agent.lower(), ("◆", agent))
 else:
-    agent_display = f"{PRP}👁️Odin{RST}"
+    icon, name = model_to_icon_name(model)
+
+# Active subagent from temp file (written by subagent_tracker.py hook)
+TEMP_AGENT_FILE = os.path.join(tempfile.gettempdir(), "claude_subagent_active.txt")
+active_sub = ""
+try:
+    with open(TEMP_AGENT_FILE, encoding="utf-8") as f:
+        active_sub = f.read().strip()
+except Exception:
+    pass
+
+if active_sub:
+    sub_icon, sub_name = AGENT_MAP.get(active_sub.lower(), ("◆", active_sub))
+    agent_display = (
+        f"{MAG}{BOLD}{icon} {name}{RST}"
+        f"{DIM}→{RST}"
+        f"{MAG}{BOLD}{sub_icon} {sub_name}{RST}"
+    )
+else:
+    agent_display = f"{MAG}{BOLD}{icon} {name}{RST}"
 
 # --- Vim mode ---
 if vim_mode == "INSERT":
