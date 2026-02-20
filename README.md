@@ -81,6 +81,53 @@ Odin (Loki Oracle) orchestrates — specialized sub-agents handle the work.
 
 ---
 
+## Installation
+
+### 1. Clone the repo
+
+**git:**
+```bash
+git clone https://github.com/zirz1911/Loki-Oracle.git
+cd Loki-Oracle
+```
+
+**gh:**
+```bash
+gh repo clone zirz1911/Loki-Oracle
+cd Loki-Oracle
+```
+
+### 2. Run setup
+
+```bash
+bash .claude/setup.sh
+```
+
+That's it. The script:
+- Generates `.claude/settings.local.json` — statusline + hooks, with correct absolute paths
+- Generates `.mcp.json` — MCP server config for Norse agents
+- Auto-detects **WSL vs native** and sets the right Ollama host automatically
+
+### 3. Restart Claude Code
+
+Open the project in Claude Code. The statusline appears at the bottom of the terminal.
+
+---
+
+### Notes
+
+**Ollama (for Norse MCP agents)** must be running before Claude Code starts.
+
+On **Windows**, allow Ollama to accept connections from WSL:
+```powershell
+[System.Environment]::SetEnvironmentVariable("OLLAMA_HOST", "0.0.0.0:11434", "User")
+# then restart Ollama
+```
+
+`setup.sh` is safe to re-run anytime — it merges, never overwrites existing config keys.
+
+---
+
 ## Philosophy
 
 > "The Oracle Keeps the Human Human"
