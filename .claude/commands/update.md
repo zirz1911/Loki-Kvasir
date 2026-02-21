@@ -26,7 +26,7 @@ Untracked files are fine — ignore them.
 ### Step 3: Pull Latest
 
 ```bash
-gh repo sync --source zirz1911/Loki-Oracle --branch main
+git pull --rebase origin main
 ```
 
 If already up to date → say so and stop here.
