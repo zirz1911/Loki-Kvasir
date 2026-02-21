@@ -24,7 +24,7 @@ Example: `/openclaw claude29 สวัสดีจาก session หลัก`
 | Session | Bot | IP | Version | Command Flag |
 |---------|-----|----|---------|-------------|
 | `claude30` | `@conclaw30bot` | local (root) | 2026.2.9 | `--session-id agent:main:main` |
-| `claude28` | `@conclaw28bot` | 192.168.1.229 | 2026.2.19-2 | `--agent main` |
+| ~~`claude28`~~ | ~~`@conclaw28bot`~~ | ~~192.168.1.229~~ | — | offline |
 | `claude29` | `@conclaw29bot` | 192.168.1.34 | 2026.2.19-2 | `--agent main` |
 
 **Lokkji's Telegram chatId**: `8190607091`

@@ -1,18 +1,16 @@
 # /openclaw-dashboard — Openclaw Status Dashboard
 
-Check the live status of all 3 Openclaw instances from this session.
+Check the live status of active Openclaw instances from this session.
 
 Usage: `/openclaw-dashboard`
 
-## Instances
+## Active Fleet
 
-| Session | Bot | User | Token |
-|---------|-----|------|-------|
-| `claude30` | `@conclaw30bot` | root | gateway auth token (local) |
-| `claude28` | `@conclaw28bot` | paji | `b636eca573bad0e5c3be4ce5ba539c443b5a1f4dc7129329` |
-| `claude29` | `@conclaw29bot` | paji | copied from root config |
+| Session | Bot | IP | Version |
+|---------|-----|----|---------|
+| `claude30` | `@conclaw30bot` | local (root) | 2026.2.9 |
+| `claude29` | `@conclaw29bot` | 192.168.1.34 | 2026.2.19-2 |
 
-**Shared Gateway**: `ws://127.0.0.1:18789` (pid 10346, openclaw-gateway)
 **Lokkji's Telegram chatId**: `8190607091`
 
 ## Task
@@ -30,31 +28,32 @@ Show the output to Lokkji.
 - **tmux session missing** → instance not started
 - **Telegram: error** → check bot token in openclaw config
 - **Gateway: error** → gateway may have crashed, check `openclaw-gateway` process
+- **pairing required** → run `openclaw devices list` then `openclaw devices approve <id>`
 
 ### Step 3: Quick health per instance
 
-To check a single instance manually:
 ```bash
-tmux send-keys -t <session> C-u && sleep 0.3 && tmux send-keys -t <session> "openclaw health 2>&1" && sleep 0.5 && tmux send-keys -t <session> C-m
-sleep 30 && tmux capture-pane -t <session> -p | tail -20
+tmux send-keys -t <session> C-u && sleep 0.3 && \
+tmux send-keys -t <session> "openclaw health 2>&1" && \
+sleep 0.5 && tmux send-keys -t <session> C-m
+sleep 35 && tmux capture-pane -t <session> -p | tail -20
 ```
 
 ## Sending to a Specific Instance
 
-Each bot is independent. To target a specific instance:
 ```bash
-# via claude28
-tmux send-keys -t claude28 C-u && sleep 0.3 && \
-tmux send-keys -t claude28 "openclaw agent --session-id agent:main:main --message \"<msg>\" --json" && \
-sleep 0.5 && tmux send-keys -t claude28 C-m
+# claude30 (v2026.2.9)
+tmux send-keys -t claude30 C-u && sleep 0.3 && \
+tmux send-keys -t claude30 "openclaw agent --session-id agent:main:main --message \"<msg>\" --json" && \
+sleep 0.5 && tmux send-keys -t claude30 C-m
 
-# via claude29 (same pattern)
-# via claude30 (same pattern)
+# claude29 (v2026.2.19-2)
+tmux send-keys -t claude29 C-u && sleep 0.3 && \
+tmux send-keys -t claude29 "openclaw agent --agent main --message \"<msg>\" --json" && \
+sleep 0.5 && tmux send-keys -t claude29 C-m
 ```
 
 ## Notes
 
-- All 3 instances connect to the same gateway (`ws://127.0.0.1:18789`)
-- Each has its own Telegram bot and agent session
-- Dashboard polls all 3 simultaneously for efficiency
-- Health checks take ~30s each (openclaw startup time)
+- `--session-id agent:main:main` for v2026.2.9, `--agent main` for v2026.2.19-2
+- claude28 (192.168.1.229) removed from fleet — machine offline
