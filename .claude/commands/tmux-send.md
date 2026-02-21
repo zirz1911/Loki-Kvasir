@@ -30,8 +30,9 @@ Verify the target session exists. If not — show available sessions and stop.
 
 ### Step 3: Send
 
+Clear any existing input first, then send:
 ```bash
-tmux send-keys -t <session> "<message>" && sleep 0.5 && tmux send-keys -t <session> C-m
+tmux send-keys -t <session> C-u && sleep 0.3 && tmux send-keys -t <session> "<message>" && sleep 0.5 && tmux send-keys -t <session> C-m
 ```
 
 ### Step 4: Capture Output

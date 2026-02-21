@@ -23,6 +23,7 @@ Example: `/openclaw ส่งข้อความ Telegram ไปหา Lokkji 
 - **Session**: `claude30`
 - **Agent session-id**: `agent:main:main`
 - **Token**: not required for `openclaw agent` (local loopback, no auth needed)
+- **Lokkji's Telegram chatId**: `8190607091`
 
 ## Task
 
@@ -42,8 +43,9 @@ Verify `claude30` session exists. If not → stop and warn.
 
 ### Step 3: Send via tmux → claude30
 
+Clear any existing input first, then send:
 ```bash
-tmux send-keys -t claude30 "openclaw agent --session-id agent:main:main --message \"<message>\" --json 2>&1" && sleep 0.5 && tmux send-keys -t claude30 C-m
+tmux send-keys -t claude30 C-u && sleep 0.3 && tmux send-keys -t claude30 "openclaw agent --session-id agent:main:main --message \"<message>\" --json 2>&1" && sleep 0.5 && tmux send-keys -t claude30 C-m
 ```
 
 ### Step 4: Wait and capture response
