@@ -6,10 +6,11 @@ Usage: `/openclaw-dashboard`
 
 ## Active Fleet
 
-| Session | Bot | IP | Version |
-|---------|-----|----|---------|
-| `claude30` | `@conclaw30bot` | local (root) | 2026.2.9 |
-| `claude29` | `@conclaw29bot` | 192.168.1.34 | 2026.2.19-2 |
+| Session | Alias | Bot | IP | Version |
+|---------|-------|-----|----|---------|
+| `claude30` | — | `@conclaw30bot` | local (root) | 2026.2.9 |
+| `claude29` | — | `@conclaw29bot` | 192.168.1.34 | 2026.2.19-2 |
+| `claude28` | **Claude202** | `@openpaji_bot` | new machine | 2026.2.6-3 |
 
 **Lokkji's Telegram chatId**: `8190607091`
 
@@ -51,9 +52,15 @@ sleep 0.5 && tmux send-keys -t claude30 C-m
 tmux send-keys -t claude29 C-u && sleep 0.3 && \
 tmux send-keys -t claude29 "openclaw agent --agent main --message \"<msg>\" --json" && \
 sleep 0.5 && tmux send-keys -t claude29 C-m
+
+# claude28 / Claude202 (v2026.2.6-3)
+tmux send-keys -t claude28 C-u && sleep 0.3 && \
+tmux send-keys -t claude28 "openclaw agent --agent main --message \"<msg>\" --json" && \
+sleep 0.5 && tmux send-keys -t claude28 C-m
 ```
 
 ## Notes
 
-- `--session-id agent:main:main` for v2026.2.9, `--agent main` for v2026.2.19-2
-- claude28 (192.168.1.229) removed from fleet — machine offline
+- `--session-id agent:main:main` for v2026.2.9, `--agent main` for v2026.2.19-2 and v2026.2.6-3
+- claude28 = Claude202 (new machine, @openpaji_bot) — agents: coder-man, thor, loki, hermes, tyr, ymir
+- old claude28 (192.168.1.229) removed — machine offline

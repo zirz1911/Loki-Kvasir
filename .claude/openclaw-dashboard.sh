@@ -2,10 +2,10 @@
 # Openclaw Dashboard — Check status of all Openclaw instances
 # Usage: bash .claude/openclaw-dashboard.sh
 
-SESSIONS=("claude29" "claude30")
-BOTS=("@conclaw29bot" "@conclaw30bot")
-IPS=("192.168.1.34" "local")
-VERSIONS=("2026.2.19-2" "2026.2.9")
+SESSIONS=("claude28" "claude29" "claude30")
+BOTS=("@openpaji_bot" "@conclaw29bot" "@conclaw30bot")
+IPS=("new-machine" "192.168.1.34" "local")
+VERSIONS=("2026.2.6-3" "2026.2.19-2" "2026.2.9")
 
 echo ""
 echo "╔══════════════════════════════════════════════════════╗"

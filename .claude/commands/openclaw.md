@@ -21,11 +21,11 @@ Example: `/openclaw claude29 สวัสดีจาก session หลัก`
 
 ## Fleet Config
 
-| Session | Bot | IP | Version | Command Flag |
-|---------|-----|----|---------|-------------|
-| `claude30` | `@conclaw30bot` | local (root) | 2026.2.9 | `--session-id agent:main:main` |
-| ~~`claude28`~~ | ~~`@conclaw28bot`~~ | ~~192.168.1.229~~ | — | offline |
-| `claude29` | `@conclaw29bot` | 192.168.1.34 | 2026.2.19-2 | `--agent main` |
+| Session | Alias | Bot | IP | Version | Flag |
+|---------|-------|-----|----|---------|------|
+| `claude30` | — | `@conclaw30bot` | local (root) | 2026.2.9 | `--session-id agent:main:main` |
+| `claude29` | — | `@conclaw29bot` | 192.168.1.34 | 2026.2.19-2 | `--agent main` |
+| `claude28` | **Claude202** | `@openpaji_bot` | new machine | 2026.2.6-3 | `--agent <name>` |
 
 **Lokkji's Telegram chatId**: `8190607091`
 **Default session**: `claude30`
