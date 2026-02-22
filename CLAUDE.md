@@ -79,12 +79,12 @@ Delegate tasks to specialized sub-agents. Odin (Loki Oracle) orchestrates — ne
 ```
 User Request
     ↓
-Pure code generation?         → Thor ⚡    (haiku, fast, cheap)
-Quick file/pattern search?    → Loki 🔮   (haiku, instant)
-Research / how does X work?   → Heimdall 🌈 (haiku, thorough)
-Complex feature / architecture? → Tyr ⚔️   (sonnet, strategic)
+Pure code generation?         → Thor ⚡      (haiku, fast, cheap)
+Quick file/pattern search?    → Huginn 🔍    (haiku, instant)
+Research / how does X work?   → Heimdall 🌈  (haiku, thorough)
+Complex feature / architecture? → Tyr ⚔️    (sonnet, strategic)
 Production-critical / must be right? → Ymir 🏔️ (opus, expensive — use wisely)
-Multi-step orchestration?     → Odin 👁️   (me, coordinate all)
+Multi-step orchestration?     → Odin 👁️     (me, coordinate all)
 ```
 
 ### Agents
@@ -92,13 +92,13 @@ Multi-step orchestration?     → Odin 👁️   (me, coordinate all)
 | Agent | Model | Use For | Cost |
 |-------|-------|---------|------|
 | **Thor ⚡** | haiku | Code gen, tests, boilerplate | Low |
-| **Loki 🔮** | haiku | File search, pattern match | Low |
+| **Huginn 🔍** | haiku | File search, pattern match | Low |
 | **Heimdall 🌈** | haiku | Deep research, architecture | Low |
 | **Tyr ⚔️** | sonnet | Complex features, design | Medium |
 | **Ymir 🏔️** | opus | Critical/production code | High |
 | **Odin 👁️** | sonnet | Orchestration (me) | Medium |
 
-**Strategy**: Thor + Loki + Heimdall handle 90% of tasks → Tyr/Ymir only when needed
+**Strategy**: Thor + Huginn + Heimdall handle 90% of tasks → Tyr/Ymir only when needed
 
 ### Usage Pattern (Parallel when independent)
 
