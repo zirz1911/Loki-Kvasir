@@ -54,13 +54,13 @@ Odin (Loki Oracle) orchestrates — specialized sub-agents handle the work.
 | Agent | Model | Use For |
 |-------|-------|---------|
 | **Thor ⚡** | haiku | Code gen, tests, boilerplate |
-| **Loki 🔮** | haiku | File search, pattern match |
+| **Huginn 🔍** | haiku | File search, pattern match |
 | **Heimdall 🌈** | haiku | Deep research, architecture |
 | **Tyr ⚔️** | sonnet | Complex features, design |
 | **Ymir 🏔️** | opus | Critical/production code |
 | **Odin 👁️** | sonnet | Orchestration (me) |
 
-**Strategy**: Thor + Loki + Heimdall handle 90% of tasks → Tyr/Ymir only when needed.
+**Strategy**: Thor + Huginn + Heimdall handle 90% of tasks → Tyr/Ymir only when needed.
 
 ---
 
@@ -111,6 +111,48 @@ That's it. The script:
 ### 3. Restart Claude Code
 
 Open the project in Claude Code. The statusline appears at the bottom of the terminal.
+
+---
+
+### 4. Local LLM (optional — cost saving)
+
+Two ways to use local Ollama models instead of (or alongside) the Anthropic API:
+
+#### Option A — MCP Tools (recommended)
+
+Adds `query_local_llm`, `compare_models`, `filter_context` as tools Claude can call on demand.
+Claude stays as orchestrator — local models handle cheap subtasks for free.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\mcp-local-llm\install.ps1"
+```
+
+Then restart Claude Code. Tools appear automatically.
+
+#### Option B — LiteLLM Proxy (replace Claude with Ollama)
+
+Maps Claude model names → local Ollama models. Use for offline work or API cost testing.
+
+```powershell
+# Start proxy (port 4000)
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\start-litellm.ps1"
+
+# Launch Claude Code pointed at local proxy (run in a new terminal)
+powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\claude-local.ps1"
+```
+
+| Claude model | Routes to |
+|---|---|
+| `claude-haiku-4-5-20251001` | `qwen2.5-coder:7b` |
+| `claude-sonnet-4-6` | `qwen2.5-coder:32b` |
+
+Auto-fallback to real Anthropic API if Ollama is unavailable.
+
+**Pull recommended models first:**
+```bash
+ollama pull qwen2.5-coder:7b    # 4.7 GB
+ollama pull qwen2.5-coder:32b   # 19 GB
+```
 
 ---
 
