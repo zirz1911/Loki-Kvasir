@@ -14,12 +14,16 @@ class RateLimiter:
     def allow(self, key: str) -> bool:
         with self.lock:
             now = time.time()
-            if now - self.last_refill_time[key] > 0:
-                self.tokens[key] += (now - self.last_refill_time[key]) * self.refill_rate
+            if self.last_refill_time[key] == 0.0:
+                # first access — initialize clock, start with 0 tokens
+                self.last_refill_time[key] = now
+            else:
+                elapsed = now - self.last_refill_time[key]
+                self.tokens[key] += elapsed * self.refill_rate
                 self.tokens[key] = min(self.tokens[key], self.max_tokens)
                 self.last_refill_time[key] = now
             if self.tokens[key] >= 1:
-                self.tokens[key] -= 1  # fix: deduct token on approval
+                self.tokens[key] -= 1
                 return True
             return False
 
