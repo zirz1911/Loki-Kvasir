@@ -146,12 +146,15 @@ Then restart Claude Code. Tools appear automatically.
 Maps Claude model names → local Ollama models. Use for offline work or API cost testing.
 
 ```powershell
-# Start proxy (port 4000)
+# Start proxy (port 4000) — reads ANTHROPIC_API_KEY from ~/.claude/api_key for fallback
 powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\start-litellm.ps1"
 
 # Launch Claude Code pointed at local proxy (run in a new terminal)
 powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\claude-local.ps1"
 ```
+
+`start-litellm.ps1` sets `ANTHROPIC_API_KEY` from `~/.claude/api_key` automatically.
+If Ollama is unavailable, LiteLLM auto-fallbacks to the real Anthropic API.
 
 | Claude model | Routes to |
 |---|---|
