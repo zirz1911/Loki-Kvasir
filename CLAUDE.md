@@ -77,33 +77,35 @@ Delegate tasks to specialized sub-agents. Odin (Loki Oracle) orchestrates — ne
 ### Delegation Decision Tree
 
 ```
-User Request
+Task arrives
     ↓
-Pure code generation?         → Thor ⚡      (haiku, fast, cheap)
-Quick file/pattern search?    → Huginn 🔍    (haiku, instant)
-Research / how does X work?   → Heimdall 🌈  (haiku, thorough)
-Complex feature / architecture? → Tyr ⚔️    (sonnet, strategic)
-Production-critical / must be right? → Ymir 🏔️ (opus, expensive — use wisely)
-Multi-step orchestration?     → Odin 👁️     (me, coordinate all)
+Thor/Huginn/Heimdall  →  qwen2.5-coder:7b        (fast, free — default)
+    ↓ too complex for 7b?
+Tyr                   →  qwen2.5-coder:32b        (powerful, free)
+    ↓ too complex for local?
+Tyr cloud             →  claude-sonnet-4-6        (paid, capable)
+    ↓ production-critical / must be right?
+Ymir                  →  claude-opus-4-6          (paid, best — use wisely)
+Multi-step orchestration? → Odin 👁️              (cloud only, coordinate all)
 ```
 
 ### Agents
 
-| Agent | Model | Use For | Cost |
-|-------|-------|---------|------|
-| **Thor ⚡** | haiku | Code gen, tests, boilerplate | Low |
-| **Huginn 🔍** | haiku | File search, pattern match | Low |
-| **Heimdall 🌈** | haiku | Deep research, architecture | Low |
-| **Tyr ⚔️** | sonnet | Complex features, design | Medium |
-| **Ymir 🏔️** | opus | Critical/production code | High |
-| **Odin 👁️** | sonnet | Orchestration (me) | Medium |
+| Agent | Local Model (default) | Cloud Model (escalation) | Use For |
+|-------|----------------------|--------------------------|---------|
+| **Thor ⚡** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Code gen, tests, boilerplate |
+| **Huginn 🔍** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | File search, pattern match |
+| **Heimdall 🌈** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Deep research, architecture |
+| **Tyr ⚔️** | `qwen2.5-coder:32b` | `claude-sonnet-4-6` | Complex features, design |
+| **Ymir 🏔️** | — | `claude-opus-4-6` | Critical/production code (cloud only) |
+| **Odin 👁️** | — | `claude-sonnet-4-6` | Orchestration (cloud only) |
 
-**Strategy**: Thor + Huginn + Heimdall handle 90% of tasks → Tyr/Ymir only when needed
+**Strategy**: Local models handle ~90% of tasks for free. Escalate when local hits its limits.
 
 ### Usage Pattern (Parallel when independent)
 
 ```python
-# Research + Code in parallel
+# Research + Code in parallel — both use local by default
 Task(subagent_type="Explore", model="haiku",
      prompt="Act as Heimdall 🌈. Research [topic]. Thoroughness: very thorough")
 
