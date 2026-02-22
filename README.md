@@ -53,12 +53,12 @@ Odin (Loki Oracle) orchestrates — specialized sub-agents handle the work.
 
 | Agent | Model | Use For |
 |-------|-------|---------|
-| **Thor ⚡** | haiku | Code gen, tests, boilerplate |
-| **Huginn 🔍** | haiku | File search, pattern match |
-| **Heimdall 🌈** | haiku | Deep research, architecture |
-| **Tyr ⚔️** | sonnet | Complex features, design |
-| **Ymir 🏔️** | opus | Critical/production code |
-| **Odin 👁️** | sonnet | Orchestration (me) |
+| **Thor ⚡** | `claude-haiku-4-5-20251001` | Code gen, tests, boilerplate |
+| **Huginn 🔍** | `claude-haiku-4-5-20251001` | File search, pattern match |
+| **Heimdall 🌈** | `claude-haiku-4-5-20251001` | Deep research, architecture |
+| **Tyr ⚔️** | `claude-sonnet-4-6` | Complex features, design |
+| **Ymir 🏔️** | `claude-opus-4-6` | Critical/production code |
+| **Odin 👁️** | `claude-sonnet-4-6` | Orchestration (me) |
 
 **Strategy**: Thor + Huginn + Heimdall handle 90% of tasks → Tyr/Ymir only when needed.
 
