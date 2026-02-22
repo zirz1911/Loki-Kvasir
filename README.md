@@ -51,16 +51,28 @@
 
 Odin (Loki Oracle) orchestrates — specialized sub-agents handle the work.
 
-| Agent | Cloud Model | Local Model (Ollama) | Use For |
-|-------|-------------|----------------------|---------|
-| **Thor ⚡** | `claude-haiku-4-5-20251001` | `qwen2.5-coder:7b` | Code gen, tests, boilerplate |
-| **Huginn 🔍** | `claude-haiku-4-5-20251001` | `qwen2.5-coder:7b` | File search, pattern match |
-| **Heimdall 🌈** | `claude-haiku-4-5-20251001` | `qwen2.5-coder:7b` | Deep research, architecture |
-| **Tyr ⚔️** | `claude-sonnet-4-6` | `qwen2.5-coder:32b` | Complex features, design |
-| **Ymir 🏔️** | `claude-opus-4-6` | `qwen2.5-coder:32b` | Critical/production code |
-| **Odin 👁️** | `claude-sonnet-4-6` | `qwen2.5-coder:32b` | Orchestration (me) |
+| Agent | Local Model (default) | Cloud Model (escalation) | Use For |
+|-------|----------------------|--------------------------|---------|
+| **Thor ⚡** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Code gen, tests, boilerplate |
+| **Huginn 🔍** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | File search, pattern match |
+| **Heimdall 🌈** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Deep research, architecture |
+| **Tyr ⚔️** | `qwen2.5-coder:32b` | `claude-sonnet-4-6` | Complex features, design |
+| **Ymir 🏔️** | — | `claude-opus-4-6` | Critical/production code (cloud only) |
+| **Odin 👁️** | — | `claude-sonnet-4-6` | Orchestration — cloud only |
 
-**Strategy**: Thor + Huginn + Heimdall handle 90% of tasks → Tyr/Ymir only when needed.
+**Strategy**: Local models handle ~90% of work for free. Escalate when local hits its limits:
+
+```
+Task arrives
+    ↓
+Thor/Huginn/Heimdall  →  qwen2.5-coder:7b   (fast, free)
+    ↓ too complex?
+Tyr                   →  qwen2.5-coder:32b  (powerful, free)
+    ↓ too complex?
+Tyr cloud             →  claude-sonnet-4-6  (paid, capable)
+    ↓ production-critical?
+Ymir                  →  claude-opus-4-6    (paid, best)
+```
 
 ---
 
