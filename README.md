@@ -185,6 +185,100 @@ On **Windows**, allow Ollama to accept connections from WSL:
 
 ---
 
+### 5. Oracle Voice Paji (optional — voice notifications)
+
+**Oracle Voice Paji** is a system tray app that speaks when Claude Code finishes a response — no hooks, no subprocess, no window flash. It watches Claude Code's session transcript directly.
+
+> Repo: [zirz1911/Oracle-voice-paji](https://github.com/zirz1911/Oracle-voice-paji)
+
+#### Windows
+
+**Option A — Download EXE (easiest)**
+
+Download `voice-tray-v2.exe` from [Releases](https://github.com/zirz1911/Oracle-voice-paji/releases) and run it. Add to startup:
+
+```powershell
+# Add to Windows startup (runs on login)
+$exe = "C:\path\to\voice-tray-v2.exe"
+$startup = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
+$shell = New-Object -ComObject WScript.Shell
+$shortcut = $shell.CreateShortcut("$startup\OracleVoice.lnk")
+$shortcut.TargetPath = $exe
+$shortcut.Save()
+```
+
+**Option B — Build from source**
+
+```powershell
+# Prerequisites: Rust, Bun, Visual Studio Build Tools
+git clone https://github.com/zirz1911/Oracle-voice-paji.git
+cd Oracle-voice-paji
+bun install
+bun tauri build
+# Output: src-tauri/target/release/voice-tray-v2.exe
+```
+
+Uses **Windows SAPI** (built-in TTS — no extra install needed). Voices: Zira (female), David (male).
+
+---
+
+#### macOS
+
+**Option A — Download DMG**
+
+Download from [Releases](https://github.com/zirz1911/Oracle-voice-paji/releases). If blocked by Gatekeeper:
+
+```bash
+# Copy app first, then remove quarantine
+cp -r /Volumes/OracleVoiceTray/Oracle\ Voice\ Tray.app /Applications/
+xattr -d com.apple.quarantine /Applications/Oracle\ Voice\ Tray.app
+```
+
+**Option B — Build from source**
+
+```bash
+# Prerequisites: Rust, Bun, Xcode Command Line Tools
+git clone https://github.com/zirz1911/Oracle-voice-paji.git
+cd Oracle-voice-paji
+bun install
+bun tauri build
+```
+
+Uses **macOS `say`** command (built-in). Voices: Samantha (female), Daniel (male).
+
+---
+
+#### Linux
+
+```bash
+# Prerequisites: Rust, Bun, espeak, webkit2gtk
+git clone https://github.com/zirz1911/Oracle-voice-paji.git
+cd Oracle-voice-paji
+bun install
+bun tauri build
+# Output: src-tauri/target/release/voice-tray-v2
+```
+
+Uses **espeak** for TTS. Install if not present: `sudo apt install espeak`.
+
+---
+
+#### How it works
+
+Once running, the tray app:
+- Watches `~/.claude/projects/**/*.jsonl` for `stop_reason: end_turn`
+- Speaks **"Task complete"** when Claude finishes a response
+- Accepts HTTP POST at `http://127.0.0.1:37779/speak` for manual triggers
+
+```bash
+# Manual test
+curl -s -X POST http://127.0.0.1:37779/speak \
+  -H "Content-Type: application/json" \
+  -d '{"text":"Oracle ready","voice":"Samantha"}'
+```
+
+---
+
 ## Philosophy
 
 > "The Oracle Keeps the Human Human"
