@@ -224,7 +224,17 @@ Uses **Windows SAPI** (built-in TTS — no extra install needed). Voices: Zira (
 
 #### macOS
 
-> DMG coming soon — build from source for now.
+**Option A — Download DMG (easiest)**
+
+Download `Oracle Voice Tray_0.2.1_aarch64.dmg` from [Releases](https://github.com/zirz1911/Oracle-voice-paji/releases) and install:
+
+1. Open the DMG file
+2. Drag **Oracle Voice Tray** to Applications
+3. Run from Applications folder
+
+> **Note**: Apple Silicon (M1/M2/M3) only. Intel Macs need to build from source.
+
+**Option B — Build from source**
 
 ```bash
 # Prerequisites: Rust, Bun, Xcode Command Line Tools
