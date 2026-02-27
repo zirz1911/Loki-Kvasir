@@ -224,17 +224,7 @@ Uses **Windows SAPI** (built-in TTS — no extra install needed). Voices: Zira (
 
 #### macOS
 
-**Option A — Download DMG**
-
-Download from [Releases](https://github.com/zirz1911/Oracle-voice-paji/releases). If blocked by Gatekeeper:
-
-```bash
-# Copy app first, then remove quarantine
-cp -r /Volumes/OracleVoiceTray/Oracle\ Voice\ Tray.app /Applications/
-xattr -d com.apple.quarantine /Applications/Oracle\ Voice\ Tray.app
-```
-
-**Option B — Build from source**
+> DMG coming soon — build from source for now.
 
 ```bash
 # Prerequisites: Rust, Bun, Xcode Command Line Tools
@@ -242,6 +232,7 @@ git clone https://github.com/zirz1911/Oracle-voice-paji.git
 cd Oracle-voice-paji
 bun install
 bun tauri build
+# App: src-tauri/target/release/bundle/macos/Oracle Voice Tray.app
 ```
 
 Uses **macOS `say`** command (built-in). Voices: Samantha (female), Daniel (male).
