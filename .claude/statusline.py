@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import sys, json, time, os, tempfile
+import sys, json, time, os, tempfile, urllib.request
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -66,6 +66,46 @@ if cost_usd is not None:
 else:
     cost_display = f"{DIM}$—{RST}"
 
+# --- Subscription usage (cached 60s) ---
+USAGE_CACHE = os.path.join(tempfile.gettempdir(), "claude_usage_cache.json")
+CREDS_FILE  = os.path.expanduser("~/.claude/.credentials.json")
+
+def get_usage():
+    # Return (five_hour_pct, seven_day_pct) or (None, None)
+    try:
+        # Check cache freshness
+        if os.path.exists(USAGE_CACHE) and time.time() - os.path.getmtime(USAGE_CACHE) < 60:
+            with open(USAGE_CACHE, encoding="utf-8") as f:
+                cached = json.load(f)
+        else:
+            with open(CREDS_FILE, encoding="utf-8") as f:
+                token = json.load(f)["claudeAiOauth"]["accessToken"]
+            req = urllib.request.Request(
+                "https://api.anthropic.com/api/oauth/usage",
+                headers={"Authorization": f"Bearer {token}", "anthropic-beta": "oauth-2025-04-20"},
+            )
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                cached = json.loads(resp.read())
+            with open(USAGE_CACHE, "w", encoding="utf-8") as f:
+                json.dump(cached, f)
+        fh = cached.get("five_hour") or {}
+        sd = cached.get("seven_day") or {}
+        return fh.get("utilization"), sd.get("utilization")
+    except Exception:
+        return None, None
+
+fh_pct, sd_pct = get_usage()
+
+def usage_str(pct, label):
+    if pct is None:
+        return ""
+    p = int(float(pct))
+    col = RED if p >= 80 else (YLW if p >= 50 else GRN)
+    return f"{col}{label}:{p}%{RST}"
+
+usage_parts = [s for s in [usage_str(fh_pct, "5h"), usage_str(sd_pct, "7d")] if s]
+usage_display = SEP + f" {DIM}│{RST} ".join(usage_parts) if usage_parts else ""
+
 # --- Agent ---
 AGENT_MAP = {
     "thor":     ("⚡", "Thor"),
@@ -124,6 +164,7 @@ line = (
     f"{SEP}{ctx}"
     f"{SEP}{tok_display}"
     f"{SEP}{cost_display}"
+    f"{usage_display}"
     f"{SEP}{agent_display}"
     f"{vim}"
 )
