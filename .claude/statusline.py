@@ -140,7 +140,7 @@ def usage_str(pct, label, reset_str=""):
         return ""
     p = int(float(pct))
     col = RED if p >= 80 else (YLW if p >= 50 else GRN)
-    rst_part = f"{DIM}↺{reset_str}{RST}" if reset_str else ""
+    rst_part = f" {DIM}↺{reset_str}{RST}" if reset_str else ""
     return f"{col}{label}:{p}%{RST}{rst_part}"
 
 usage_parts = [s for s in [
