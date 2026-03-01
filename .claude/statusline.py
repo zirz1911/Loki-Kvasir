@@ -9,11 +9,14 @@ except Exception:
     data = {}
 
 # --- Extract fields ---
-cwd      = data.get("cwd") or (data.get("workspace") or {}).get("current_dir", "")
-model    = (data.get("model") or {}).get("display_name", "")
-used     = (data.get("context_window") or {}).get("used_percentage")
-vim_mode = (data.get("vim") or {}).get("mode", "")
-agent    = (data.get("agent") or {}).get("name", "")
+cwd          = data.get("cwd") or (data.get("workspace") or {}).get("current_dir", "")
+model        = (data.get("model") or {}).get("display_name", "")
+used         = (data.get("context_window") or {}).get("used_percentage")
+vim_mode     = (data.get("vim") or {}).get("mode", "")
+agent        = (data.get("agent") or {}).get("name", "")
+agent_type   = (data.get("agent") or {}).get("type", "")
+session_name = (data.get("session") or {}).get("name", "") or data.get("session_name", "")
+added_dirs   = (data.get("workspace") or {}).get("added_dirs", []) or []
 
 cost_usd  = (data.get("cost") or {}).get("total_cost_usd")
 tok_in    = (data.get("context_window") or {}).get("total_input_tokens", 0) or 0
@@ -122,9 +125,11 @@ def model_to_icon_name(model_str):
     if "opus"  in m: return ("🏔️", "Ymir")
     return ("👁️", "Odin")
 
-# Base agent: explicit > model inference
+# Base agent: explicit > agent_type fallback > model inference
 if agent:
     icon, name = AGENT_MAP.get(agent.lower(), ("◆", agent))
+elif agent_type:
+    icon, name = AGENT_MAP.get(agent_type.lower(), ("◆", agent_type))
 else:
     icon, name = model_to_icon_name(model)
 
@@ -155,11 +160,15 @@ elif vim_mode:
 else:
     vim = ""
 
+# --- Session name & added dirs ---
+loki_label = f"Loki [{session_name}]" if session_name else "Loki"
+dirs_badge = f" {DIM}+{len(added_dirs)}{RST}" if added_dirs else ""
+
 # --- Assemble ---
 line = (
     f"{GLD}{rune}{RST} "
-    f"{BOLD}{CYN}Loki{RST}"
-    f"{SEP}{YLW}{short}{RST}"
+    f"{BOLD}{CYN}{loki_label}{RST}"
+    f"{SEP}{YLW}{short}{RST}{dirs_badge}"
     f"{SEP}{BLU}{model}{RST}"
     f"{SEP}{ctx}"
     f"{SEP}{tok_display}"
