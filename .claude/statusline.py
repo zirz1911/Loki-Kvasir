@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys, json, time, os, tempfile, urllib.request
+from datetime import datetime, timezone, timedelta
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -111,20 +112,41 @@ def get_usage():
                 json.dump(cached, f)
         fh = cached.get("five_hour") or {}
         sd = cached.get("seven_day") or {}
-        return fh.get("utilization"), sd.get("utilization")
+        return fh.get("utilization"), fh.get("resets_at"), sd.get("utilization"), sd.get("resets_at")
     except Exception:
-        return None, None
+        return None, None, None, None
 
-fh_pct, sd_pct = get_usage()
+fh_pct, fh_reset_at, sd_pct, sd_reset_at = get_usage()
 
-def usage_str(pct, label):
+BKK = timezone(timedelta(hours=7))
+
+def fmt_reset(iso_str, short=False):
+    """Return reset time in Bangkok tz. short=True → hour only (5h); False → weekday (7d)."""
+    if not iso_str:
+        return ""
+    try:
+        dt = datetime.fromisoformat(iso_str).astimezone(BKK)
+        if short:
+            h = dt.hour
+            return f"{'12' if h in (0,12) else h % 12}{'am' if h < 12 else 'pm'}"
+        else:
+            days = (dt.date() - datetime.now(BKK).date()).days
+            return "today" if days == 0 else ("tmr" if days == 1 else dt.strftime("%a"))
+    except Exception:
+        return ""
+
+def usage_str(pct, label, reset_str=""):
     if pct is None:
         return ""
     p = int(float(pct))
     col = RED if p >= 80 else (YLW if p >= 50 else GRN)
-    return f"{col}{label}:{p}%{RST}"
+    rst_part = f"{DIM}↺{reset_str}{RST}" if reset_str else ""
+    return f"{col}{label}:{p}%{RST}{rst_part}"
 
-usage_parts = [s for s in [usage_str(fh_pct, "5h"), usage_str(sd_pct, "7d")] if s]
+usage_parts = [s for s in [
+    usage_str(fh_pct, "5h", fmt_reset(fh_reset_at, short=True)),
+    usage_str(sd_pct, "7d", fmt_reset(sd_reset_at, short=False)),
+] if s]
 usage_display = SEP + f" {DIM}│{RST} ".join(usage_parts) if usage_parts else ""
 
 # --- Agent ---
