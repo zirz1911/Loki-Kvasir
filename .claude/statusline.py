@@ -70,6 +70,21 @@ else:
 USAGE_CACHE = os.path.join(tempfile.gettempdir(), "claude_usage_cache.json")
 CREDS_FILE  = os.path.expanduser("~/.claude/.credentials.json")
 
+def _get_token():
+    # 1. Try file first (Linux / older Claude Code)
+    if os.path.exists(CREDS_FILE):
+        with open(CREDS_FILE, encoding="utf-8") as f:
+            return json.load(f)["claudeAiOauth"]["accessToken"]
+    # 2. Try macOS Keychain (Claude Code on macOS stores creds here)
+    import subprocess
+    result = subprocess.run(
+        ["security", "find-generic-password", "-s", "Claude Code-credentials", "-w"],
+        capture_output=True, text=True
+    )
+    if result.returncode == 0:
+        return json.loads(result.stdout.strip())["claudeAiOauth"]["accessToken"]
+    raise FileNotFoundError("No Claude credentials found")
+
 def get_usage():
     # Return (five_hour_pct, seven_day_pct) or (None, None)
     try:
@@ -78,13 +93,19 @@ def get_usage():
             with open(USAGE_CACHE, encoding="utf-8") as f:
                 cached = json.load(f)
         else:
-            with open(CREDS_FILE, encoding="utf-8") as f:
-                token = json.load(f)["claudeAiOauth"]["accessToken"]
+            token = _get_token()
+            import ssl
+            ctx = ssl.create_default_context()
+            try:
+                import certifi
+                ctx.load_verify_locations(certifi.where())
+            except ImportError:
+                ctx.load_verify_locations("/etc/ssl/cert.pem") if os.path.exists("/etc/ssl/cert.pem") else None
             req = urllib.request.Request(
                 "https://api.anthropic.com/api/oauth/usage",
                 headers={"Authorization": f"Bearer {token}", "anthropic-beta": "oauth-2025-04-20"},
             )
-            with urllib.request.urlopen(req, timeout=3) as resp:
+            with urllib.request.urlopen(req, timeout=3, context=ctx) as resp:
                 cached = json.loads(resp.read())
             with open(USAGE_CACHE, "w", encoding="utf-8") as f:
                 json.dump(cached, f)
