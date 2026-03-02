@@ -86,35 +86,50 @@ def _get_token():
         return json.loads(result.stdout.strip())["claudeAiOauth"]["accessToken"]
     raise FileNotFoundError("No Claude credentials found")
 
+def _refresh_usage_bg():
+    """Fetch usage API in background, write to cache. Never blocks caller."""
+    import subprocess, sys
+    script = f"""
+import urllib.request, ssl, json, os, tempfile
+USAGE_CACHE = os.path.join(tempfile.gettempdir(), "claude_usage_cache.json")
+CREDS_FILE  = os.path.expanduser("~/.claude/.credentials.json")
+try:
+    token = json.load(open(CREDS_FILE, encoding="utf-8"))["claudeAiOauth"]["accessToken"]
+    ctx = ssl.create_default_context()
+    req = urllib.request.Request(
+        "https://api.anthropic.com/api/oauth/usage",
+        headers={{"Authorization": f"Bearer {{token}}", "anthropic-beta": "oauth-2025-04-20"}},
+    )
+    with urllib.request.urlopen(req, timeout=4, context=ctx) as resp:
+        data = json.loads(resp.read())
+    with open(USAGE_CACHE + ".tmp", "w", encoding="utf-8") as f:
+        json.dump(data, f)
+    os.replace(USAGE_CACHE + ".tmp", USAGE_CACHE)
+except Exception:
+    pass
+"""
+    subprocess.Popen(
+        [sys.executable, "-c", script],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        creationflags=0x00000008 if os.name == "nt" else 0,  # DETACHED_PROCESS on Windows
+    )
+
 def get_usage():
-    # Return (five_hour_pct, seven_day_pct) or (None, None)
+    # Return (five_hour_pct, fh_reset, seven_day_pct, sd_reset) or (None,None,None,None)
     try:
-        # Check cache freshness
-        if os.path.exists(USAGE_CACHE) and time.time() - os.path.getmtime(USAGE_CACHE) < 60:
+        cache_age = time.time() - os.path.getmtime(USAGE_CACHE) if os.path.exists(USAGE_CACHE) else 9999
+        # Always show cache immediately; refresh in background if stale (>5 min)
+        if cache_age > 300:
+            _refresh_usage_bg()
+        if os.path.exists(USAGE_CACHE):
             with open(USAGE_CACHE, encoding="utf-8") as f:
                 cached = json.load(f)
-        else:
-            token = _get_token()
-            import ssl
-            ctx = ssl.create_default_context()
-            try:
-                import certifi
-                ctx.load_verify_locations(certifi.where())
-            except ImportError:
-                ctx.load_verify_locations("/etc/ssl/cert.pem") if os.path.exists("/etc/ssl/cert.pem") else None
-            req = urllib.request.Request(
-                "https://api.anthropic.com/api/oauth/usage",
-                headers={"Authorization": f"Bearer {token}", "anthropic-beta": "oauth-2025-04-20"},
-            )
-            with urllib.request.urlopen(req, timeout=3, context=ctx) as resp:
-                cached = json.loads(resp.read())
-            with open(USAGE_CACHE, "w", encoding="utf-8") as f:
-                json.dump(cached, f)
-        fh = cached.get("five_hour") or {}
-        sd = cached.get("seven_day") or {}
-        return fh.get("utilization"), fh.get("resets_at"), sd.get("utilization"), sd.get("resets_at")
+            fh = cached.get("five_hour") or {}
+            sd = cached.get("seven_day") or {}
+            return fh.get("utilization"), fh.get("resets_at"), sd.get("utilization"), sd.get("resets_at")
     except Exception:
-        return None, None, None, None
+        pass
+    return None, None, None, None
 
 fh_pct, fh_reset_at, sd_pct, sd_reset_at = get_usage()
 
