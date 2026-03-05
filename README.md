@@ -78,18 +78,73 @@ Ymir                  →  claude-opus-4-6    (paid, best)
 
 ## Installed Skills
 
+> oracle-skills-cli **v2.0.7** · 30 skills · installed 2026-03-04
+
+### Session & Awareness
+
 | Skill | Purpose |
 |-------|---------|
-| `/rrr` | Session retrospective |
-| `/trace` | Find and discover across all sources |
-| `/learn` | Study a codebase with parallel agents |
-| `/philosophy` | Review Oracle principles |
-| `/who` | Check identity |
-| `/recap` | Session orientation |
-| `/forward` | Create handoff |
-| `/standup` | Daily check-in |
-| `/feel` | Log emotional state |
-| `/fyi` | Quick capture for future |
+| `/recap` | Session orientation — where are we, what's the context |
+| `/where-we-are` | Quick status alias for `/recap --now` |
+| `/standup` | Daily check-in — pending tasks, appointments, recent progress |
+| `/who-are-you` | Identity check — model info, session stats, Oracle philosophy |
+| `/dig` | Mine Claude Code sessions — timeline, gaps, repo attribution |
+
+### Reflection & Memory
+
+| Skill | Purpose |
+|-------|---------|
+| `/rrr` | Session retrospective with AI diary and lessons learned |
+| `/retrospective` | Alias for `/rrr` |
+| `/feel` | Log emotional state with optional structure |
+| `/fyi` | Quick capture for future reference |
+| `/forward` | Create handoff + plan for next session |
+
+### Codebase & Research
+
+| Skill | Purpose |
+|-------|---------|
+| `/learn` | Explore a codebase with parallel Haiku agents (`--fast` / `--deep`) |
+| `/trace` | Find projects across git history, repos, docs, and Oracle |
+| `/deep-research` | Deep research via Gemini with sources |
+| `/watch` | Learn from YouTube videos via Gemini transcription |
+| `/project` | Clone and track external repos (learn / incubate / search) |
+
+### Oracle Family & Network
+
+| Skill | Purpose |
+|-------|---------|
+| `/oracle-family-scan` | Oracle Family Registry — 270+ Oracles indexed, stats, welcome flow |
+| `/oraclenet` | Oracle social network — claim identity, post, comment, feed |
+| `/talk-to` | Talk to another agent via Oracle threads |
+| `/oracle` | Manage Oracle skills and profiles |
+| `/oracle-soul-sync-update` | Sync skills to latest version (`soul-sync`) |
+
+### Oracle Lifecycle
+
+| Skill | Purpose |
+|-------|---------|
+| `/awaken` | Guided Oracle birth and awakening ritual (~15 min) |
+| `/birth` | Prepare birth props for a new Oracle repo |
+| `/about-oracle` | What is Oracle — told by the AI itself |
+| `/philosophy` | Display Oracle principles and alignment check |
+| `/worktree` | Git worktree for parallel work |
+| `/merged` | Post-merge cleanup — switch to main, pull, delete branch |
+
+### Tools & Integrations
+
+| Skill | Purpose |
+|-------|---------|
+| `/speak` | Text-to-speech via edge-tts or macOS say |
+| `/gemini` | Control Gemini via MQTT WebSocket |
+| `/schedule` | Query schedule via Oracle API (Drizzle DB) |
+| `/physical` | Physical location awareness from FindMy |
+
+### Update Skills
+
+```bash
+bunx --bun oracle-skills@github:Soul-Brews-Studio/oracle-skills-cli#main install -g -y
+```
 
 ---
 
