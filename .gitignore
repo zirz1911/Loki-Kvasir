@@ -5,6 +5,9 @@
 # Claude Code active state
 .claude/todos.json
 
-# Logs & temp
+# Vault — tracked in oracle-vault repo (D:/oracle-vault)
+ψ/
+
+# Logs & temp (kept for reference — covered by ψ/ above)
 ψ/memory/logs/
 ψ/active/
