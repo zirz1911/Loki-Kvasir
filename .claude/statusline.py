@@ -90,12 +90,24 @@ def _refresh_usage_bg():
     """Fetch usage API in background, write to cache. Never blocks caller."""
     import subprocess, sys
     script = f"""
-import urllib.request, ssl, json, os, tempfile
+import urllib.request, ssl, json, os, tempfile, subprocess as sp
 USAGE_CACHE = os.path.join(tempfile.gettempdir(), "claude_usage_cache.json")
 CREDS_FILE  = os.path.expanduser("~/.claude/.credentials.json")
+def _get_token():
+    if os.path.exists(CREDS_FILE):
+        return json.load(open(CREDS_FILE, encoding="utf-8"))["claudeAiOauth"]["accessToken"]
+    r = sp.run(["security", "find-generic-password", "-s", "Claude Code-credentials", "-w"],
+               capture_output=True, text=True)
+    if r.returncode == 0:
+        return json.loads(r.stdout.strip())["claudeAiOauth"]["accessToken"]
+    raise FileNotFoundError("No Claude credentials found")
 try:
-    token = json.load(open(CREDS_FILE, encoding="utf-8"))["claudeAiOauth"]["accessToken"]
-    ctx = ssl.create_default_context()
+    token = _get_token()
+    try:
+        import certifi
+        ctx = ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        ctx = ssl.create_default_context()
     req = urllib.request.Request(
         "https://api.anthropic.com/api/oauth/usage",
         headers={{"Authorization": f"Bearer {{token}}", "anthropic-beta": "oauth-2025-04-20"}},
