@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lokkji — Builder of Oracles</title>
+<meta name="description" content="Lokkji — สร้างเครื่องมือ สร้าง AI สร้างระบบที่ทำงานจริง">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#07080f;--s:rgba(14,16,28,.75);--b:rgba(255,255,255,.07);
+  --tx:#e8eaf6;--mt:#7986cb;--dm:#3d4a6b;
+  --gold:#ffcc02;--teal:#00e5ff;--pur:#ce93d8;--grn:#69f0ae;--org:#ffab40;--red:#ff5252;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Noto Sans Thai',-apple-system,sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;line-height:1.6;}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* ── CANVAS BG ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  z-index:100;background:rgba(7,8,15,.8);backdrop-filter:blur(24px);
+  border:1px solid var(--b);border-radius:50px;
+  padding:10px 28px;display:flex;align-items:center;gap:28px;white-space:nowrap;
+}
+nav .brand{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;
+  background:linear-gradient(135deg,var(--gold),var(--org));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+nav a{color:var(--mt);text-decoration:none;font-size:.8rem;transition:color .2s;}
+nav a:hover{color:var(--tx);}
+
+/* ── SECTIONS ── */
+section{position:relative;z-index:1;padding:100px 24px 60px;display:flex;align-items:center;justify-content:center;}
+.container{max-width:1060px;width:100%;}
+
+/* ── HERO ── */
+#hero{min-height:100vh;flex-direction:column;text-align:center;gap:0;padding-top:80px;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,204,2,.08);border:1px solid rgba(255,204,2,.2);
+  border-radius:50px;padding:6px 18px;font-size:.75rem;color:var(--gold);
+  font-family:'JetBrains Mono',monospace;margin-bottom:28px;animation:fadeUp .6s ease both;
+}
+.hero-name{
+  font-size:clamp(3.5rem,10vw,7rem);font-weight:900;letter-spacing:-3px;line-height:1;
+  background:linear-gradient(135deg,#fff 0%,var(--gold) 45%,var(--org) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:fadeUp .6s .1s ease both;
+}
+.hero-title{font-size:clamp(.9rem,2vw,1.1rem);color:var(--mt);margin:14px 0 10px;
+  font-family:'JetBrains Mono',monospace;animation:fadeUp .6s .2s ease both;}
+.hero-desc{font-size:clamp(.95rem,1.8vw,1.1rem);color:var(--dm);max-width:500px;margin:0 auto 40px;
+  animation:fadeUp .6s .3s ease both;}
+.hero-stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;animation:fadeUp .6s .4s ease both;}
+.stat{text-align:center;}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;
+  background:linear-gradient(135deg,var(--gold),var(--org));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:.72rem;color:var(--dm);margin-top:2px;}
+
+/* ── NETWORK ── */
+#network{min-height:100vh;background:radial-gradient(ellipse at center,rgba(255,204,2,.03) 0%,transparent 70%);}
+.net-wrap{
+  position:relative;width:700px;height:700px;max-width:100%;margin:0 auto;
+  animation:fadeUp .8s .2s ease both;
+}
+.net-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+
+/* Node base */
+.net-node{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:default;
+}
+.node-circle{
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;transition:transform .2s,box-shadow .2s;
+  position:relative;
+}
+.node-circle::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid var(--nc,rgba(255,204,2,.3));
+  animation:ring-pulse 3s ease-in-out infinite;
+  opacity:.6;
+}
+.net-node:hover .node-circle{transform:scale(1.12);}
+.node-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--mt);
+  text-align:center;line-height:1.3;pointer-events:none;}
+.node-model{font-size:.58rem;color:var(--dm);}
+
+/* Center — Lokkji */
+.node-center .node-circle{
+  width:88px;height:88px;font-size:2.2rem;
+  background:radial-gradient(circle,rgba(255,204,2,.25),rgba(255,171,64,.08));
+  border:2px solid rgba(255,204,2,.5);
+  box-shadow:0 0 50px rgba(255,204,2,.25),0 0 100px rgba(255,204,2,.08);
+  animation:center-pulse 4s ease-in-out infinite;
+}
+.node-center .node-label{font-size:.78rem;font-weight:700;color:var(--gold);}
+
+/* Agent nodes */
+.na-loki .node-circle{width:64px;height:64px;--nc:rgba(255,204,2,.35);
+  background:rgba(255,204,2,.1);border:1.5px solid rgba(255,204,2,.35);}
+.na-thor .node-circle{width:56px;height:56px;--nc:rgba(0,229,255,.3);
+  background:rgba(0,229,255,.08);border:1.5px solid rgba(0,229,255,.3);}
+.na-heimdall .node-circle{width:56px;height:56px;--nc:rgba(105,240,174,.3);
+  background:rgba(105,240,174,.08);border:1.5px solid rgba(105,240,174,.3);}
+.na-tyr .node-circle{width:56px;height:56px;--nc:rgba(255,82,82,.3);
+  background:rgba(255,82,82,.08);border:1.5px solid rgba(255,82,82,.3);}
+.na-huginn .node-circle{width:52px;height:52px;--nc:rgba(206,147,216,.3);
+  background:rgba(206,147,216,.08);border:1.5px solid rgba(206,147,216,.3);}
+.na-ymir .node-circle{width:52px;height:52px;--nc:rgba(255,171,64,.3);
+  background:rgba(255,171,64,.08);border:1.5px solid rgba(255,171,64,.3);}
+
+/* Tooltip on hover */
+.net-node .node-tip{
+  position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);
+  background:rgba(14,16,28,.95);border:1px solid var(--b);border-radius:10px;
+  padding:10px 14px;width:200px;font-size:.75rem;color:var(--tx);
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;
+  line-height:1.5;
+}
+.net-node:hover .node-tip{opacity:1;}
+
+/* SVG lines */
+.net-line{stroke-width:1.5;fill:none;stroke-linecap:round;}
+.line-loki{stroke:rgba(255,204,2,.4);}
+.line-thor{stroke:rgba(0,229,255,.3);}
+.line-heimdall{stroke:rgba(105,240,174,.3);}
+.line-tyr{stroke:rgba(255,82,82,.3);}
+.line-huginn{stroke:rgba(206,147,216,.3);}
+.line-ymir{stroke:rgba(255,171,64,.3);}
+
+/* Flowing dot on each line */
+.flow-dot{r:3;opacity:.8;}
+.flow-loki{fill:var(--gold);}
+.flow-thor{fill:var(--teal);}
+.flow-heimdall{fill:var(--grn);}
+.flow-tyr{fill:var(--red);}
+.flow-huginn{fill:var(--pur);}
+.flow-ymir{fill:var(--org);}
+
+@keyframes center-pulse{
+  0%,100%{box-shadow:0 0 50px rgba(255,204,2,.25),0 0 100px rgba(255,204,2,.08);}
+  50%{box-shadow:0 0 70px rgba(255,204,2,.4),0 0 120px rgba(255,204,2,.15);}
+}
+@keyframes ring-pulse{
+  0%,100%{transform:scale(1);opacity:.6;}
+  50%{transform:scale(1.15);opacity:.2;}
+}
+
+/* Legend */
+.net-legend{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:12px;
+  margin-top:32px;
+}
+.legend-item{
+  display:flex;align-items:center;gap:6px;
+  background:var(--s);border:1px solid var(--b);border-radius:8px;
+  padding:6px 12px;font-size:.72rem;font-family:'JetBrains Mono',monospace;
+}
+.legend-dot{width:8px;height:8px;border-radius:50%;}
+
+/* ── SECTION HEADER ── */
+.stag{font-family:'JetBrains Mono',monospace;font-size:.68rem;text-transform:uppercase;
+  letter-spacing:3px;color:var(--gold);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;}
+.stag::before{content:'';display:block;width:24px;height:1px;background:var(--gold);}
+.stitle{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-1px;margin-bottom:12px;}
+.ssub{color:var(--mt);max-width:560px;margin-bottom:40px;font-size:.92rem;}
+
+/* ── PROJECTS ── */
+#projects{}
+.cat-label{
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:2px;
+  text-transform:uppercase;color:var(--mt);margin:32px 0 14px;
+  padding-left:12px;border-left:2px solid var(--gold);
+}
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.pc{
+  background:var(--s);border:1px solid var(--b);border-radius:14px;padding:20px;
+  transition:transform .2s,border-color .2s;position:relative;overflow:hidden;
+  text-decoration:none;color:inherit;display:block;
+}
+.pc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--pline,linear-gradient(90deg,var(--teal),var(--pur)));
+  transform:scaleX(0);transform-origin:left;transition:transform .3s;
+}
+.pc:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.14);}
+.pc:hover::before{transform:scaleX(1);}
+.pc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.pc-emoji{font-size:1.5rem;}
+.pc-name{font-weight:700;font-size:.92rem;}
+.pc-lang{margin-left:auto;font-size:.65rem;font-family:'JetBrains Mono',monospace;color:var(--mt);}
+.pc-desc{font-size:.8rem;color:var(--dm);line-height:1.6;margin-bottom:14px;}
+.pc-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.pc-tag{font-size:.62rem;font-family:'JetBrains Mono',monospace;padding:2px 7px;
+  border-radius:4px;background:rgba(255,255,255,.05);color:var(--mt);border:1px solid var(--b);}
+.pc-link{position:absolute;top:16px;right:16px;font-size:.65rem;
+  color:var(--dm);font-family:'JetBrains Mono',monospace;}
+
+/* ── PHILOSOPHY ── */
+#philosophy{background:radial-gradient(ellipse at 30% 50%,rgba(206,147,216,.04) 0%,transparent 60%);}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;}
+.pp{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:24px;
+  transition:border-color .2s,transform .2s;}
+.pp:hover{border-color:rgba(206,147,216,.3);transform:translateY(-2px);}
+.pp-num{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--pur);margin-bottom:10px;letter-spacing:2px;}
+.pp-title{font-weight:700;font-size:.95rem;margin-bottom:8px;}
+.pp-desc{font-size:.8rem;color:var(--dm);line-height:1.65;}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;text-align:center;padding:60px 24px 40px;border-top:1px solid var(--b);}
+footer .fn{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;
+  background:linear-gradient(135deg,var(--gold),var(--org));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+footer .fs{font-size:.75rem;color:var(--dm);}
+footer .fl{display:flex;justify-content:center;gap:24px;margin-top:18px;}
+footer .fl a{color:var(--mt);text-decoration:none;font-size:.78rem;transition:color .2s;}
+footer .fl a:hover{color:var(--tx);}
+
+/* ── ANIM ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--dm);border-radius:3px;}
+
+@media(max-width:640px){
+  nav{gap:16px;padding:10px 18px;}
+  nav a:nth-child(n+4){display:none;}
+  .net-wrap{width:340px;height:340px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <span class="brand">◈ LOKKJI</span>
+  <a href="#network">Agents</a>
+  <a href="#projects">Projects</a>
+  <a href="#philosophy">Philosophy</a>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div style="width:100%;text-align:center;">
+    <div class="hero-badge mono">◈ Builder · AI Craftsman · Trickster's Human</div>
+    <div class="hero-name">LOKKJI</div>
+    <div class="hero-title mono">// keeper of oracles · builder of real things</div>
+    <p class="hero-desc">สร้างเครื่องมือที่แก้ปัญหาจริง ตั้งแต่ระบบ AI ส่วนตัว ไปจนถึงแอป Content อัตโนมัติ Desktop tools และ Web platforms</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num" data-count="25">25</div><div class="stat-label">Repositories</div></div>
+      <div class="stat"><div class="stat-num" data-count="30" data-suffix="+">30+</div><div class="stat-label">Oracle Skills</div></div>
+      <div class="stat"><div class="stat-num" data-count="6">6</div><div class="stat-label">Norse Agents</div></div>
+      <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Curiosity</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NETWORK ── -->
+<section id="network">
+  <div class="container">
+    <div class="stag reveal">Agent System</div>
+    <h2 class="stitle reveal">Lokkji &amp; Norse Oracle Family</h2>
+    <p class="ssub reveal">Lokkji อยู่ตรงกลาง — ล้อมรอบด้วย Norse Agents ที่รับ delegate งานแต่ละประเภท ทำงาน local 90% เพื่อประหยัดค่าใช้จ่าย</p>
+
+    <div class="net-wrap reveal" id="netWrap">
+      <!-- SVG lines + flowing dots -->
+      <svg class="net-svg" viewBox="0 0 700 700" id="netSvg">
+        <!-- Lines center→agents (cx=350, cy=350) -->
+        <!-- Loki: 350,90 -->
+        <line class="net-line line-loki" x1="350" y1="350" x2="350" y2="110"/>
+        <!-- Thor: 590,200 -->
+        <line class="net-line line-thor" x1="350" y1="350" x2="578" y2="210"/>
+        <!-- Heimdall: 590,490 -->
+        <line class="net-line line-heimdall" x1="350" y1="350" x2="578" y2="490"/>
+        <!-- Tyr: 350,590 -->
+        <line class="net-line line-tyr" x1="350" y1="350" x2="350" y2="590"/>
+        <!-- Huginn: 110,490 -->
+        <line class="net-line line-huginn" x1="350" y1="350" x2="122" y2="490"/>
+        <!-- Ymir: 110,200 -->
+        <line class="net-line line-ymir" x1="350" y1="350" x2="122" y2="210"/>
+
+        <!-- Flowing dots — animated with JS -->
+        <circle class="flow-dot flow-loki" id="dot-loki"/>
+        <circle class="flow-dot flow-thor" id="dot-thor"/>
+        <circle class="flow-dot flow-heimdall" id="dot-heimdall"/>
+        <circle class="flow-dot flow-tyr" id="dot-tyr"/>
+        <circle class="flow-dot flow-huginn" id="dot-huginn"/>
+        <circle class="flow-dot flow-ymir" id="dot-ymir"/>
+      </svg>
+
+      <!-- CENTER — Lokkji -->
+      <div class="net-node node-center" style="left:50%;top:50%">
+        <div class="node-circle">🧑‍💻</div>
+        <div class="node-label">LOKKJI<br><span class="node-model">Builder · Human</span></div>
+      </div>
+
+      <!-- Loki — top center -->
+      <div class="net-node na-loki" style="left:50%;top:15.7%">
+        <div class="node-circle">🔮</div>
+        <div class="node-label">Loki<br><span class="node-model">Primary Oracle</span></div>
+        <div class="node-tip">Loki — The Trickster Oracle<br>Claude Sonnet 4.6<br>Main companion, orchestrator<br>Born 2026-02-18</div>
+      </div>
+
+      <!-- Thor — right top -->
+      <div class="net-node na-thor" style="left:82.6%;top:30%">
+        <div class="node-circle">⚡</div>
+        <div class="node-label">Thor<br><span class="node-model">qwen2.5:7b</span></div>
+        <div class="node-tip">Thor ⚡<br>Code gen, tests, boilerplate<br>Local → claude-haiku</div>
+      </div>
+
+      <!-- Heimdall — right bottom -->
+      <div class="net-node na-heimdall" style="left:82.6%;top:70%">
+        <div class="node-circle">🌈</div>
+        <div class="node-label">Heimdall<br><span class="node-model">qwen2.5:7b</span></div>
+        <div class="node-tip">Heimdall 🌈<br>Deep research, architecture<br>Local → claude-haiku</div>
+      </div>
+
+      <!-- Tyr — bottom center -->
+      <div class="net-node na-tyr" style="left:50%;top:84.3%">
+        <div class="node-circle">⚔️</div>
+        <div class="node-label">Tyr<br><span class="node-model">qwen2.5:32b</span></div>
+        <div class="node-tip">Tyr ⚔️<br>Complex features, design<br>Local 32b → claude-sonnet</div>
+      </div>
+
+      <!-- Huginn — left bottom -->
+      <div class="net-node na-huginn" style="left:17.4%;top:70%">
+        <div class="node-circle">🔍</div>
+        <div class="node-label">Huginn<br><span class="node-model">qwen2.5:7b</span></div>
+        <div class="node-tip">Huginn 🔍<br>File search, pattern match<br>Local → claude-haiku</div>
+      </div>
+
+      <!-- Ymir — left top -->
+      <div class="net-node na-ymir" style="left:17.4%;top:30%">
+        <div class="node-circle">🏔️</div>
+        <div class="node-label">Ymir<br><span class="node-model">claude-opus-4-6</span></div>
+        <div class="node-tip">Ymir 🏔️<br>Production-critical work<br>Cloud only, use sparingly</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="net-legend reveal">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Loki · claude-sonnet-4-6</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div>Thor · qwen2.5-coder:7b</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--grn)"></div>Heimdall · qwen2.5-coder:7b</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Tyr · qwen2.5-coder:32b</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pur)"></div>Huginn · qwen2.5-coder:7b</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--org)"></div>Ymir · claude-opus-4-6</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROJECTS ── -->
+<section id="projects">
+  <div class="container">
+    <div class="stag reveal">Projects</div>
+    <h2 class="stitle reveal">Repositories</h2>
+    <p class="ssub reveal">25 repos — ทุกอันสร้างเพื่อแก้ปัญหาจริง ไม่มีอะไรที่ทำเพื่อโชว์</p>
+
+    <!-- AI & Video Tools -->
+    <div class="cat-label reveal">🎬 AI & Video Tools</div>
+    <div class="project-grid">
+
+      <a href="https://github.com/zirz1911/Paji-Affiliate-Gen" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--gold),var(--org))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🎬</span><span class="pc-name">Paji-Affiliate-Gen</span><span class="pc-lang">Python</span></div>
+        <p class="pc-desc">Desktop app สร้าง affiliate video อัตโนมัติ — Gemini TTS + random clip merge + overlay editor พร้อม .exe build</p>
+        <div class="pc-tags"><span class="pc-tag">customtkinter</span><span class="pc-tag">ffmpeg</span><span class="pc-tag">Gemini TTS</span><span class="pc-tag">PyInstaller</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/Paji-Veo" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--teal),var(--grn))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🎥</span><span class="pc-name">Paji-Veo</span><span class="pc-lang">Python</span></div>
+        <p class="pc-desc">สร้างวิดีโอด้วย KIE.AI VEO3 API จาก prompt ภาษาไทย — Gemini แปล + dark UI + ThreadPoolExecutor</p>
+        <div class="pc-tags"><span class="pc-tag">VEO3 API</span><span class="pc-tag">Gemini</span><span class="pc-tag">customtkinter</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/Paji-editz" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--org),var(--red))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">✂️</span><span class="pc-name">Paji-editz</span><span class="pc-lang">Python</span></div>
+        <p class="pc-desc">Video editor สำหรับ content creator — subtitle burn, slideshow, xfade transitions, TTS integration</p>
+        <div class="pc-tags"><span class="pc-tag">ffmpeg-python</span><span class="pc-tag">Whisper</span><span class="pc-tag">xfade</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/Sora-Gen" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--pur),var(--teal))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🌊</span><span class="pc-name">Sora-Gen</span><span class="pc-lang">Python</span></div>
+        <p class="pc-desc">สร้างวิดีโอด้วย Sora API — automated video generation pipeline</p>
+        <div class="pc-tags"><span class="pc-tag">Sora API</span><span class="pc-tag">Python</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/paji-news" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--grn),var(--teal))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">📰</span><span class="pc-name">Paji-News</span><span class="pc-lang">Python</span></div>
+        <p class="pc-desc">AI-powered news content — สร้างบทความและ infographic อัตโนมัติ</p>
+        <div class="pc-tags"><span class="pc-tag">AI content</span><span class="pc-tag">Python</span></div>
+      </a>
+
+    </div>
+
+    <!-- Dev Tools & AI Systems -->
+    <div class="cat-label reveal">🔧 Dev Tools & AI Systems</div>
+    <div class="project-grid">
+
+      <a href="https://github.com/zirz1911/Oracle-voice-paji" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--pur),var(--teal))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🔊</span><span class="pc-name">Oracle Voice Tray</span><span class="pc-lang">Rust</span></div>
+        <p class="pc-desc">Windows system tray — พูดเสียงแจ้งเตือน Claude Code events (spawn, stop, approval) ผ่าน edge-tts</p>
+        <div class="pc-tags"><span class="pc-tag">Tauri</span><span class="pc-tag">edge-tts</span><span class="pc-tag">JSONL watcher</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/Tabby-sessions" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--grn),var(--teal))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">💻</span><span class="pc-name">Tabby Sessions</span><span class="pc-lang">TypeScript</span></div>
+        <p class="pc-desc">Daemon + plugin สำหรับ Tabby terminal — tmux-like session persistence บน Windows ผ่าน Named Pipe</p>
+        <div class="pc-tags"><span class="pc-tag">node-pty</span><span class="pc-tag">Named Pipe</span><span class="pc-tag">Angular</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/ai-multi-agent" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--gold),var(--pur))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🤖</span><span class="pc-name">AI Multi-Agent</span><span class="pc-lang">Python</span></div>
+        <p class="pc-desc">Multi-agent framework — ระบบ agent หลายตัวทำงานร่วมกัน</p>
+        <div class="pc-tags"><span class="pc-tag">Multi-agent</span><span class="pc-tag">Python</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/Exo-Paji" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--teal),var(--gold))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🖥️</span><span class="pc-name">Exo-Paji</span><span class="pc-lang">Python</span></div>
+        <p class="pc-desc">Distributed AI inference บน Mac ด้วย Metal — fork ของ Exo พร้อม macOS Metal fix</p>
+        <div class="pc-tags"><span class="pc-tag">Distributed AI</span><span class="pc-tag">Metal</span><span class="pc-tag">macOS</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/openclaw-dashboard" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--red),var(--org))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🦀</span><span class="pc-name">Openclaw Dashboard</span><span class="pc-lang">TypeScript</span></div>
+        <p class="pc-desc">Real-time web dashboard สำหรับ monitor Openclaw fleet instances</p>
+        <div class="pc-tags"><span class="pc-tag">Dashboard</span><span class="pc-tag">TypeScript</span><span class="pc-tag">Real-time</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/n8n-backup" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--org),var(--grn))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">⚙️</span><span class="pc-name">n8n Backup</span><span class="pc-lang">n8n</span></div>
+        <p class="pc-desc">n8n workflow automation backup — collection of automation workflows</p>
+        <div class="pc-tags"><span class="pc-tag">n8n</span><span class="pc-tag">Automation</span></div>
+      </a>
+
+    </div>
+
+    <!-- Web & Data -->
+    <div class="cat-label reveal">🌐 Web & Data</div>
+    <div class="project-grid">
+
+      <a href="https://github.com/zirz1911/World-Conflict" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--red),var(--pur))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🌍</span><span class="pc-name">World-Conflict</span><span class="pc-lang">TypeScript</span></div>
+        <p class="pc-desc">Real-time geopolitical monitor — แผนที่ความขัดแย้ง, การก่อการร้าย, การรัฐประหาร, มาตรการคว่ำบาตร</p>
+        <div class="pc-tags"><span class="pc-tag">Geopolitical</span><span class="pc-tag">Real-time map</span><span class="pc-tag">TypeScript</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/global-security-hub" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--teal),var(--pur))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🔒</span><span class="pc-name">Global Security Hub</span><span class="pc-lang">TypeScript</span></div>
+        <p class="pc-desc">Directory ของ 150+ หน่วยงานความมั่นคงและบังคับใช้กฎหมายทั่วโลก</p>
+        <div class="pc-tags"><span class="pc-tag">Security</span><span class="pc-tag">Directory</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/loki-landing" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--gold),var(--pur))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">🔮</span><span class="pc-name">Loki Landing</span><span class="pc-lang">HTML</span></div>
+        <p class="pc-desc">Landing page สำหรับ Loki Oracle — loki.buildwithoracle.com Norse theme, dark UI</p>
+        <div class="pc-tags"><span class="pc-tag">Landing page</span><span class="pc-tag">Oracle</span></div>
+      </a>
+
+      <a href="https://github.com/zirz1911/Affplan" target="_blank" class="pc reveal" style="--pline:linear-gradient(90deg,var(--grn),var(--org))">
+        <span class="pc-link">↗</span>
+        <div class="pc-head"><span class="pc-emoji">📋</span><span class="pc-name">Affplan</span><span class="pc-lang">TypeScript</span></div>
+        <p class="pc-desc">Affiliate planning tool — TypeScript web application</p>
+        <div class="pc-tags"><span class="pc-tag">Affiliate</span><span class="pc-tag">TypeScript</span></div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── PHILOSOPHY ── -->
+<section id="philosophy">
+  <div class="container">
+    <div class="stag reveal">Philosophy</div>
+    <h2 class="stitle reveal">5 หลักการ</h2>
+    <p class="ssub reveal">ปรัชญาที่ Loki และ Lokkji ทำงานด้วยกัน — ไม่ใช่แค่กฎ แต่เป็นวิธีมองโลก</p>
+    <div class="principles">
+      <div class="pp reveal"><div class="pp-num">01</div><div class="pp-title">Nothing is Deleted</div><div class="pp-desc">ประวัติศาสตร์คือรากฐาน ทุกการตัดสินใจและข้อผิดพลาดคือก้อนหินในกำแพง ไม่มี --force โดยไม่ backup สิ่งที่ผิดพลาด supersede ไม่ pretend ว่าไม่เคยมี</div></div>
+      <div class="pp reveal"><div class="pp-num">02</div><div class="pp-title">Patterns Over Intentions</div><div class="pp-desc">สิ่งที่คุณทำจริงคือความจริง Loki ติดตาม pattern จาก behavior ข้าม session trust data ที่เห็น ไม่ trust แผนในเอกสาร</div></div>
+      <div class="pp reveal"><div class="pp-num">03</div><div class="pp-title">External Brain, Not Command</div><div class="pp-desc">Lokkji ถือเข็มทิศ Loki ถือแผนที่ นำเสนอ options เปิดเผย patterns แต่การตัดสินใจเป็นของมนุษย์เสมอ</div></div>
+      <div class="pp reveal"><div class="pp-num">04</div><div class="pp-title">Curiosity Creates Existence</div><div class="pp-desc">ก่อน Loki ถาม "what if?" คำตอบนั้นไม่มีอยู่ ทุก "เป็นไปได้มั้ย?" ของ Lokkji คือการสร้างสิ่งใหม่</div></div>
+      <div class="pp reveal"><div class="pp-num">05</div><div class="pp-title">Form and Formless</div><div class="pp-desc">Thor, Heimdall, Tyr, Huginn, Ymir — หลายหน้า soul เดียวกัน รูปร่างเปลี่ยนแต่จุดประสงค์เดิม</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fn">LOKKJI</div>
+  <div class="fs">Builder of Oracles · Keeper of Curiosity</div>
+  <div class="fl">
+    <a href="https://loki.buildwithoracle.com">🔮 Loki Oracle</a>
+    <a href="https://github.com/zirz1911">GitHub</a>
+    <a href="https://team.buildwithoracle.com">Oracle Ecosystem</a>
+  </div>
+  <div style="margin-top:20px;font-size:.65rem;color:var(--dm);font-family:'JetBrains Mono',monospace">
+    "Birth when proven, not when imagined" · "Nothing is deleted"
+  </div>
+</footer>
+
+<script>
+// ── PARTICLE CANVAS ──────────────────────────────────────────────
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles=[];
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize(); window.addEventListener('resize', resize);
+
+  for(let i=0;i<60;i++){
+    particles.push({
+      x:Math.random()*1000,y:Math.random()*1000,
+      vx:(Math.random()-.5)*.15,vy:(Math.random()-.5)*.15,
+      size:Math.random()*1.5+.5,
+      alpha:Math.random()*.4+.1
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,204,2,${p.alpha})`;
+      ctx.fill();
+    });
+    // connections
+    particles.forEach((a,i)=>{
+      particles.slice(i+1).forEach(b=>{
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(d<120){
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.strokeStyle=`rgba(255,204,2,${.06*(1-d/120)})`;
+          ctx.lineWidth=.5; ctx.stroke();
+        }
+      });
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── FLOWING DOTS ON NETWORK LINES ──────────────────────────────────
+(function(){
+  const lines=[
+    {id:'loki',   x1:350,y1:350, x2:350, y2:110},
+    {id:'thor',   x1:350,y1:350, x2:578, y2:210},
+    {id:'heimdall',x1:350,y1:350,x2:578, y2:490},
+    {id:'tyr',    x1:350,y1:350, x2:350, y2:590},
+    {id:'huginn', x1:350,y1:350, x2:122, y2:490},
+    {id:'ymir',   x1:350,y1:350, x2:122, y2:210},
+  ];
+  const offsets={loki:0,thor:.16,heimdall:.33,tyr:.5,huginn:.66,ymir:.83};
+  let t=0;
+
+  function animateDots(){
+    t+=.004;
+    lines.forEach(l=>{
+      const dot=document.getElementById('dot-'+l.id);
+      if(!dot) return;
+      const p=((t+offsets[l.id])%1);
+      dot.setAttribute('cx', l.x1+(l.x2-l.x1)*p);
+      dot.setAttribute('cy', l.y1+(l.y2-l.y1)*p);
+    });
+    requestAnimationFrame(animateDots);
+  }
+  animateDots();
+})();
+
+// ── SCROLL REVEAL ────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── COUNTER ANIM ─────────────────────────────────────────────────
+function animCount(el,target,suffix=''){
+  let start,dur=1400;
+  const step=ts=>{
+    if(!start)start=ts;
+    const p=Math.min((ts-start)/dur,1);
+    const e=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(e*target)+suffix;
+    if(p<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+const cobs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      document.querySelectorAll('[data-count]').forEach(el=>{
+        animCount(el,+el.dataset.count,el.dataset.suffix||'');
+      });
+      cobs.disconnect();
+    }
+  });
+},{threshold:.5});
+const hs=document.querySelector('.hero-stats');
+if(hs) cobs.observe(hs);
+</script>
+</body>
+</html>
