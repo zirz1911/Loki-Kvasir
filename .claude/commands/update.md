@@ -52,8 +52,12 @@ If `D:/oracle-vault` doesn't exist yet (new machine setup):
 
 ```bash
 git clone https://github.com/zirz1911/oracle-vault D:/oracle-vault
-cd D:/Loki-Oracle/Loki-Oracle
-ln -s D:/oracle-vault ψ
+```
+
+Then create a Windows Junction (NOT ln -s — fake on Windows):
+
+```powershell
+New-Item -ItemType Junction -Path 'D:\Loki-Oracle\Loki-Oracle\ψ' -Target 'D:\oracle-vault'
 ```
 
 Show how many vault commits came in.
