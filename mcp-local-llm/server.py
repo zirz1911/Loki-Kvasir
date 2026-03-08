@@ -4,9 +4,9 @@ MCP Server — Norse Local LLM
 ให้ Claude Code (Odin) เรียกใช้ Ollama models เป็น tool โดยตรง
 
 Tools:
-  query_thor      → qwen2.5-coder:32b  (code generation)
-  query_loki      → qwen2.5-coder:7b   (search & patterns)
-  query_heimdall  → qwen2.5:7b         (research & docs)
+  query_thor      → qwen2.5-coder:32b-instruct  (code generation)
+  query_loki      → qwen2.5-coder:7b-instruct-gpu   (search & patterns)
+  query_heimdall  → qwen2.5:7b-instruct-gpu         (research & docs)
 
 Endpoint: Ollama OpenAI-compatible API (localhost:11434)
 """
@@ -20,9 +20,9 @@ OLLAMA_BASE = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_URL = f"{OLLAMA_BASE}/v1/chat/completions"
 
 MODELS = {
-    "thor":     "qwen2.5-coder:32b",
-    "loki":     "qwen2.5-coder:7b",
-    "heimdall": "qwen2.5:7b",
+    "thor":     "qwen2.5-coder:32b-instruct",
+    "loki":     "qwen2.5-coder:7b-instruct-gpu",
+    "heimdall": "qwen2.5:7b-instruct-gpu",
 }
 
 
@@ -50,7 +50,7 @@ def handle_list_tools():
         "tools": [
             {
                 "name": "query_thor",
-                "description": "Thor ⚡ — Code generation via qwen2.5-coder:32b (FREE, local). Use for: writing functions, generating tests, boilerplate, refactoring, algorithms. Faster and free vs Claude API.",
+                "description": "Thor ⚡ — Code generation via qwen2.5-coder:32b-instruct (FREE, local). Use for: writing functions, generating tests, boilerplate, refactoring, algorithms. Faster and free vs Claude API.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -63,7 +63,7 @@ def handle_list_tools():
             },
             {
                 "name": "query_loki",
-                "description": "Loki 🔮 — Pattern search via qwen2.5-coder:7b (FREE, local). Use for: analyzing code patterns, understanding file structures, quick code questions, pattern matching.",
+                "description": "Loki 🔮 — Pattern search via qwen2.5-coder:7b-instruct-gpu (FREE, local). Use for: analyzing code patterns, understanding file structures, quick code questions, pattern matching.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -76,7 +76,7 @@ def handle_list_tools():
             },
             {
                 "name": "query_heimdall",
-                "description": "Heimdall 🌈 — Research via qwen2.5:7b (FREE, local). Use for: explaining concepts, summarizing docs, research questions, understanding how things work.",
+                "description": "Heimdall 🌈 — Research via qwen2.5:7b-instruct-gpu (FREE, local). Use for: explaining concepts, summarizing docs, research questions, understanding how things work.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
