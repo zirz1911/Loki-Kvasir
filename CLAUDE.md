@@ -115,6 +115,38 @@ Task(subagent_type="general-purpose", model="haiku",
 
 ---
 
+## Delegation Priority (Cost Saving) 🔑
+
+**Default rule: ให้ Loki-Gemini ทำก่อนเสมอ เพื่อประหยัด Claude usage**
+
+### Priority Order
+
+| Priority | Agent | วิธีสั่ง | Cost |
+|----------|-------|---------|------|
+| **1st** | **Loki-Gemini** 🔮 | `tmux send-keys -t loki-oracle:6` | FREE (Gemini) |
+| **2nd** | **Local MCP** (Thor/Loki/Heimdall) | `mcp__norse-local-llm__query_*` | FREE (Local) |
+| **3rd** | **Claude Agents** (Tyr/Ymir) | `Task(subagent_type=...)` | PAID — ใช้เมื่อจำเป็น |
+
+### เมื่อไหร่ใช้ Loki-Gemini
+- งานทั่วไป: search, summarize, explain, draft
+- Code generation ที่ไม่ซับซ้อน
+- Research และ documentation
+- Tasks ที่ไม่ต้องการ tool access ใน Claude Code
+
+### เมื่อไหร่ escalate ขึ้น
+- Loki-Gemini ทำไม่ได้หรือผิดพลาด → Local MCP agents
+- ต้องการ file edit/write จริงๆ ใน codebase → Claude tools โดยตรง
+- งาน critical/production หรือซับซ้อนมาก → Tyr (Sonnet) หรือ Ymir (Opus)
+
+### วิธีส่งงานให้ Loki-Gemini (tmux)
+```bash
+tmux send-keys -t loki-oracle:6 "คำสั่งหรือคำถาม" C-m
+sleep 15  # รอตอบ
+tmux capture-pane -t loki-oracle:6 -p | tail -30
+```
+
+---
+
 ## Installed Skills
 
 - `/rrr` — Session retrospective
