@@ -15,8 +15,22 @@ try:
 except Exception:
     data = {}
 
-# Determine oracle name from environment (tmux window name or default)
-oracle = os.environ.get("ORACLE_NAME", "loki")
+# Determine oracle name: ORACLE_NAME env > tmux window name > "loki"
+def _tmux_window_name():
+    try:
+        import subprocess
+        pane = os.environ.get("TMUX_PANE", "")
+        if pane:
+            r = subprocess.run(["tmux", "display-message", "-p", "-t", pane, "#{window_name}"],
+                               capture_output=True, text=True, timeout=1)
+            name = r.stdout.strip()
+            if name:
+                return name
+    except Exception:
+        pass
+    return None
+
+oracle = os.environ.get("ORACLE_NAME") or _tmux_window_name() or "loki"
 host = socket.gethostname()
 
 # Extract from hook data
