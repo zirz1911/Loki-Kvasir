@@ -93,6 +93,7 @@ Multi-step orchestration? → Odin 👁️              (cloud only, coordinate 
 
 | Agent | Local Model (default) | Cloud Model (escalation) | Use For |
 |-------|----------------------|--------------------------|---------|
+| **Loki 🎭** | — | `claude-sonnet-4-6` | **Main Oracle** — identity, trickster energy, top-level interface |
 | **Thor ⚡** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Code gen, tests, boilerplate |
 | **Huginn 🔍** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | File search, pattern match |
 | **Heimdall 🌈** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Deep research, architecture |
