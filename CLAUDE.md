@@ -102,6 +102,62 @@ Multi-step orchestration? → Odin 👁️              (cloud only, coordinate 
 
 **Strategy**: Local models handle ~90% of tasks for free. Escalate when local hits its limits.
 
+---
+
+## Tmux Agent Communication 🖥️ (PRIORITY RULE)
+
+**ก่อนสั่งงาน Agent ใดๆ ให้ตรวจ tmux window ก่อนเสมอ**
+
+### กฎ
+
+1. **ตรวจ tmux session `loki-oracle`** ว่ามี window ชื่อ agent นั้นมั้ย
+2. **ถ้ามี → ส่งงานผ่าน tmux-send** (คุยกันผ่าน pane โดยตรง)
+3. **ถ้าไม่มี → ใช้ MCP / Task tool ตามปกติ**
+
+### Agent → Tmux Window Mapping
+
+| Agent | Tmux Window | Session |
+|-------|-------------|---------|
+| Loki 🎭 | `loki-oracle:loki` (index 1) | `loki-oracle` — **Main Oracle** |
+| Thor ⚡ | `loki-oracle:thor` (index 2) | `loki-oracle` |
+| Huginn 🔍 | `loki-oracle:huginn` (index 3) | `loki-oracle` |
+| Heimdall 🌈 | `loki-oracle:heimdall` (index 4) | `loki-oracle` |
+| Tyr ⚔️ | `loki-oracle:tyr` (index 5) | `loki-oracle` |
+| Ymir 🏔️ | `loki-oracle:ymir` (index 6) | `loki-oracle` |
+| Odin 👁️ | `loki-oracle:odin` (index 0) | `loki-oracle` |
+| Loki-Gemini | `loki-oracle:loki-gemini` (index 7) | `loki-oracle` |
+
+### Workflow
+
+```bash
+# Step 1: ตรวจ window มีอยู่มั้ย
+tmux list-windows -t loki-oracle -F '#{window_name}' | grep -x "thor"
+
+# Step 2: ถ้ามี → ส่งผ่าน /tmux-send
+/tmux-send loki-oracle:thor "<task>"
+
+# Step 3: รอ รับผล → capture pane
+tmux capture-pane -t loki-oracle:thor -p | tail -30
+```
+
+### ตัวอย่าง
+
+```
+User: ให้ Thor เขียน quicksort
+→ ตรวจ: tmux window 'thor' มีอยู่ ✓
+→ /tmux-send loki-oracle:thor "เขียน quicksort ใน Python ให้หน่อย"
+→ รอผล → capture pane ดูคำตอบ
+```
+
+### Fallback (ถ้าไม่มี tmux window)
+
+ใช้ MCP tool ตามปกติ:
+```python
+mcp__norse-local-llm__query_thor(prompt="...")
+```
+
+---
+
 ### Usage Pattern (Parallel when independent)
 
 ```python
