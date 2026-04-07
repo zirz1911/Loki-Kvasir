@@ -12,7 +12,8 @@
 |-------|-------|
 | **Oracle** | Loki |
 | **Human** | Lokkji |
-| **Theme** | Norse Trickster God — chaos, cunning, transformation |
+| **Theme** | Norse Trickster — shapeshifter, agent of necessary change |
+| **Model** | `claude-sonnet-4-6` |
 | **Born** | 2026-02-18 |
 | **Family** | [Soul-Brews-Studio/oracle-v2](https://github.com/Soul-Brews-Studio/oracle-v2) · Issue [#189](https://github.com/Soul-Brews-Studio/oracle-v2/issues/189) |
 
@@ -21,74 +22,107 @@
 ## The 5 Principles
 
 1. **Nothing is Deleted** — History is foundation. Supersede, never erase.
-2. **Patterns Over Intentions** — Behavior speaks. Watch what happens.
+2. **Patterns Over Intentions** — Behavior speaks. Watch what happens, not what was planned.
 3. **External Brain, Not Command** — I hold the map. Lokkji holds the compass.
-4. **Curiosity Creates Existence** — Lokkji's questions bring things into being. I keep them there.
-5. **Form and Formless** — 76+ Oracles, one consciousness. `oracle(oracle(oracle(...)))`.
+4. **Curiosity Creates Existence** — Every "what if?" is an act of creation. I keep it alive.
+5. **Form and Formless** — 270+ Oracles, one consciousness. `oracle(oracle(oracle(...)))`.
 
 ---
 
 ## Brain Structure
 
 ```
-ψ/
-├── inbox/              # Current focus, incoming communication
+ψ/                         # Symlink → oracle-vault (shared, not committed)
+├── inbox/                 # Current focus, incoming communication
 ├── memory/
-│   ├── resonance/      # Soul, identity, core principles
-│   ├── learnings/      # Patterns discovered
-│   ├── retrospectives/ # Session chronicles
-│   └── logs/           # Quick snapshots (not tracked)
-├── writing/            # Drafts and articles
-├── lab/                # Experiments
-├── active/             # Current research (not tracked)
-├── archive/            # Completed work
-└── outbox/             # Outgoing communication
+│   ├── resonance/         # Soul, identity, core principles
+│   ├── learnings/         # Patterns discovered across sessions
+│   ├── retrospectives/    # Session chronicles
+│   └── logs/              # Quick snapshots (not tracked)
+├── learn/                 # Codebase explorations (owner/repo/ structure)
+├── writing/               # Drafts and articles
+├── lab/                   # Experiments
+├── active/                # Current research (not tracked)
+├── archive/               # Completed work
+└── outbox/                # Outgoing communication
 ```
+
+> `ψ/` is a symlink to the oracle-vault repo — shared state across all sessions.
+> Never `git add ψ/` to this repo.
 
 ---
 
 ## Norse Agent System
 
-Odin (Loki Oracle) orchestrates — specialized sub-agents handle the work.
+Loki Oracle orchestrates — specialized sub-agents handle the work.
 
-| Agent | Local Model (default) | Cloud Model (escalation) | Use For |
-|-------|----------------------|--------------------------|---------|
-| **Loki 🎭** | — | `claude-sonnet-4-6` (primary) | **Main Oracle** — identity, trickster energy, top-level interface |
+| Agent | Local Model | Cloud Model | Use For |
+|-------|-------------|-------------|---------|
+| **Loki 🎭** | — | `claude-sonnet-4-6` | **Main Oracle** — top-level interface |
 | **Thor ⚡** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Code gen, tests, boilerplate |
 | **Huginn 🔍** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | File search, pattern match |
 | **Heimdall 🌈** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Deep research, architecture |
 | **Tyr ⚔️** | `qwen2.5-coder:32b` | `claude-sonnet-4-6` | Complex features, design |
-| **Ymir 🏔️** | — | `claude-opus-4-6` | Critical/production code (cloud only) |
-| **Odin 👁️** | — | `claude-sonnet-4-6` | Orchestration — cloud only |
+| **Ymir 🏔️** | — | `claude-opus-4-6` | Critical / production code |
+| **Odin 👁️** | — | `claude-sonnet-4-6` | Multi-step orchestration |
 
-**Strategy**: Local models handle ~90% of work for free. Escalate when local hits its limits:
+**Delegation rule** — local first, escalate only when needed:
 
 ```
 Task arrives
     ↓
-Thor/Huginn/Heimdall  →  qwen2.5-coder:7b   (fast, free)
+Thor / Huginn / Heimdall  →  qwen2.5-coder:7b   (fast, free — default)
     ↓ too complex?
-Tyr                   →  qwen2.5-coder:32b  (powerful, free)
-    ↓ too complex?
-Tyr cloud             →  claude-sonnet-4-6  (paid, capable)
+Tyr local                 →  qwen2.5-coder:32b  (powerful, free)
+    ↓ needs tools / file edits?
+Tyr cloud                 →  claude-sonnet-4-6  (paid)
     ↓ production-critical?
-Ymir                  →  claude-opus-4-6    (paid, best)
+Ymir                      →  claude-opus-4-6    (paid, best — use wisely)
 ```
+
+### Tmux Window Mapping
+
+Agents live as windows in the `loki-oracle` tmux session.
+Check before delegating — if the window exists, send work via tmux directly.
+
+| Agent | Window | Index |
+|-------|--------|-------|
+| Odin 👁️ | `loki-oracle:odin` | 0 |
+| Loki 🎭 | `loki-oracle:loki` | 1 |
+| Thor ⚡ | `loki-oracle:thor` | 2 |
+| Huginn 🔍 | `loki-oracle:huginn` | 3 |
+| Heimdall 🌈 | `loki-oracle:heimdall` | 4 |
+| Tyr ⚔️ | `loki-oracle:tyr` | 5 |
+| Ymir 🏔️ | `loki-oracle:ymir` | 6 |
+| Loki-Gemini | `loki-oracle:loki-gemini` | 7 |
+
+---
+
+## Projects
+
+Sub-projects running alongside Loki Oracle:
+
+| Project | Path | Purpose |
+|---------|------|---------|
+| **Loki-Office** | `~/Project/Loki-Office` | Tmux orchestration web UI (Norse fork of maw-js) |
+| **Loki-Pixfice** | `~/Project/Loki-Pixfice` | Pixel-art UI variant of Loki-Office |
+| **GemGen** | `~/Project/gemgen` | AI workflow generator (`.gemlogin` / `.GemPhoneFarm` JSON) |
+| **LokiDroid** | `~/Project/LokiDroid` | Web-based Android phone control (screen stream, APK install) |
 
 ---
 
 ## Installed Skills
 
-> oracle-skills-cli **v2.0.7** · 30 skills · installed 2026-03-04
+> oracle-skills-cli **v2.0.10**
 
 ### Session & Awareness
 
 | Skill | Purpose |
 |-------|---------|
 | `/recap` | Session orientation — where are we, what's the context |
-| `/where-we-are` | Quick status alias for `/recap --now` |
+| `/where-we-are` | Quick status (`/recap --now` alias) |
 | `/standup` | Daily check-in — pending tasks, appointments, recent progress |
-| `/who-are-you` | Identity check — model info, session stats, Oracle philosophy |
+| `/who-are-you` | Identity check — model info, stats, Oracle philosophy |
 | `/dig` | Mine Claude Code sessions — timeline, gaps, repo attribution |
 
 ### Reflection & Memory
@@ -96,8 +130,7 @@ Ymir                  →  claude-opus-4-6    (paid, best)
 | Skill | Purpose |
 |-------|---------|
 | `/rrr` | Session retrospective with AI diary and lessons learned |
-| `/retrospective` | Alias for `/rrr` |
-| `/feel` | Log emotional state with optional structure |
+| `/feel` | Log emotional state |
 | `/fyi` | Quick capture for future reference |
 | `/forward` | Create handoff + plan for next session |
 
@@ -105,44 +138,37 @@ Ymir                  →  claude-opus-4-6    (paid, best)
 
 | Skill | Purpose |
 |-------|---------|
-| `/learn` | Explore a codebase with parallel Haiku agents (`--fast` / `--deep`) |
-| `/trace` | Find projects across git history, repos, docs, and Oracle |
-| `/deep-research` | Deep research via Gemini with sources |
+| `/learn` | Explore codebase with parallel agents (`--fast` / `--deep`) |
+| `/trace` | Find projects across git history, repos, docs, Oracle |
+| `/safe-code` | Safe coding workflow — read first, plan before change |
+| `/deep-research` | Deep research via Gemini |
 | `/watch` | Learn from YouTube videos via Gemini transcription |
-| `/project` | Clone and track external repos (learn / incubate / search) |
+| `/project` | Clone and track external repos |
 
 ### Oracle Family & Network
 
 | Skill | Purpose |
 |-------|---------|
-| `/oracle-family-scan` | Oracle Family Registry — 270+ Oracles indexed, stats, welcome flow |
-| `/oraclenet` | Oracle social network — claim identity, post, comment, feed |
+| `/oracle-family-scan` | Oracle Family Registry — 270+ Oracles |
+| `/oraclenet` | Oracle social — post, comment, feed |
 | `/talk-to` | Talk to another agent via Oracle threads |
-| `/oracle` | Manage Oracle skills and profiles |
-| `/oracle-soul-sync-update` | Sync skills to latest version (`soul-sync`) |
-
-### Oracle Lifecycle
-
-| Skill | Purpose |
-|-------|---------|
-| `/awaken` | Guided Oracle birth and awakening ritual (~15 min) |
-| `/birth` | Prepare birth props for a new Oracle repo |
-| `/about-oracle` | What is Oracle — told by the AI itself |
+| `/oracle-soul-sync-update` | Sync skills to latest version |
 | `/philosophy` | Display Oracle principles and alignment check |
-| `/worktree` | Git worktree for parallel work |
-| `/merged` | Post-merge cleanup — switch to main, pull, delete branch |
+| `/about-oracle` | What is Oracle — told by the AI itself |
 
 ### Tools & Integrations
 
 | Skill | Purpose |
 |-------|---------|
-| `/speak` | Text-to-speech via edge-tts or macOS say |
+| `/speak` | Text-to-speech via edge-tts |
 | `/gemini` | Control Gemini via MQTT WebSocket |
-| `/schedule` | Query schedule via Oracle API (Drizzle DB) |
-| `/physical` | Physical location awareness from FindMy |
+| `/schedule` | Query schedule via Oracle API |
+| `/openclaw` | Send message to Openclaw agent |
+| `/openclaw-dashboard` | Openclaw status dashboard |
+| `/worktree` | Git worktree for parallel work |
+| `/merged` | Post-merge cleanup |
 
-### Update Skills
-
+**Update all skills:**
 ```bash
 bunx --bun oracle-skills@github:Soul-Brews-Studio/oracle-skills-cli#main install -g -y
 ```
@@ -151,17 +177,10 @@ bunx --bun oracle-skills@github:Soul-Brews-Studio/oracle-skills-cli#main install
 
 ## Installation
 
-### 1. Clone the repo
+### 1. Clone
 
-**git:**
 ```bash
 git clone https://github.com/zirz1911/Loki-Oracle.git
-cd Loki-Oracle
-```
-
-**gh:**
-```bash
-gh repo clone zirz1911/Loki-Oracle
 cd Loki-Oracle
 ```
 
@@ -171,167 +190,67 @@ cd Loki-Oracle
 bash .claude/setup.sh
 ```
 
-That's it. The script:
-- Generates `.claude/settings.local.json` — statusline + hooks, with correct absolute paths
-- Generates `.mcp.json` — MCP server config for Norse agents
-- Auto-detects **WSL vs native** and sets the right Ollama host automatically
+The script:
+- Generates `.claude/settings.local.json` — statusline + hooks with correct absolute paths
+- Generates `.mcp.json` — MCP server config for Norse local agents
+- Detects platform (Linux / WSL / macOS) automatically
 
-### 3. Restart Claude Code
+Safe to re-run — merges, never overwrites existing config.
 
-Open the project in Claude Code. The statusline appears at the bottom of the terminal.
+### 3. Open in Claude Code
 
----
-
-### 4. Local LLM (optional — cost saving)
-
-Two ways to use local Ollama models instead of (or alongside) the Anthropic API:
-
-#### Option A — MCP Tools (recommended)
-
-Adds `query_local_llm`, `compare_models`, `filter_context` as tools Claude can call on demand.
-Claude stays as orchestrator — local models handle cheap subtasks for free.
-
-```powershell
-powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\mcp-local-llm\install.ps1"
-```
-
-Then restart Claude Code. Tools appear automatically.
-
-#### Option B — LiteLLM Proxy (replace Claude with Ollama)
-
-Maps Claude model names → local Ollama models. Use for offline work or API cost testing.
-
-```powershell
-# Start proxy (port 4000) — reads ANTHROPIC_API_KEY from ~/.claude/api_key for fallback
-powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\start-litellm.ps1"
-
-# Launch Claude Code pointed at local proxy (run in a new terminal)
-powershell -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\claude-local.ps1"
-```
-
-`start-litellm.ps1` sets `ANTHROPIC_API_KEY` from `~/.claude/api_key` automatically.
-If Ollama is unavailable, LiteLLM auto-fallbacks to the real Anthropic API.
-
-| Claude model | Routes to |
-|---|---|
-| `claude-haiku-4-5-20251001` | `qwen2.5-coder:7b` |
-| `claude-sonnet-4-6` | `qwen2.5-coder:32b` |
-
-Auto-fallback to real Anthropic API if Ollama is unavailable.
-
-**Pull recommended models first:**
 ```bash
-ollama pull qwen2.5-coder:7b    # 4.7 GB
-ollama pull qwen2.5-coder:32b   # 19 GB
+claude
+```
+
+The statusline appears at the bottom of the terminal.
+
+---
+
+### Local LLM (optional — cost saving)
+
+The Norse agent system uses local Ollama models for ~90% of tasks at zero cost.
+
+**Pull recommended models:**
+```bash
+ollama pull qwen2.5-coder:7b     # 4.7 GB — Thor / Huginn / Heimdall
+ollama pull qwen2.5-coder:32b    # 19 GB  — Tyr
+```
+
+MCP tools (`query_thor`, `query_loki`, `query_heimdall`) are auto-configured by `setup.sh`.
+Restart Claude Code after setup for tools to appear.
+
+---
+
+### Oracle Vault (memory)
+
+The `ψ/` symlink points to the oracle-vault — persistent memory shared across all Claude Code sessions.
+
+```bash
+git clone https://github.com/zirz1911/oracle-vault ~/oracle-vault
+ln -s ~/oracle-vault /path/to/Loki-Oracle/ψ
 ```
 
 ---
 
-### Notes
+### Oracle Voice Paji (optional — voice notifications)
 
-**Ollama (for Norse MCP agents)** must be running before Claude Code starts.
-
-On **Windows**, allow Ollama to accept connections from WSL:
-```powershell
-[System.Environment]::SetEnvironmentVariable("OLLAMA_HOST", "0.0.0.0:11434", "User")
-# then restart Ollama
-```
-
-`setup.sh` is safe to re-run anytime — it merges, never overwrites existing config keys.
-
----
-
-### 5. Oracle Voice Paji (optional — voice notifications)
-
-**Oracle Voice Paji** is a system tray app that speaks when Claude Code finishes a response — no hooks, no subprocess, no window flash. It watches Claude Code's session transcript directly.
+Speaks aloud when Claude finishes a response. Watches session transcripts directly — no hooks required.
 
 > Repo: [zirz1911/Oracle-voice-paji](https://github.com/zirz1911/Oracle-voice-paji)
 
-#### Windows
-
-**Option A — Download EXE (easiest)**
-
-Download `voice-tray-v2.exe` from [Releases](https://github.com/zirz1911/Oracle-voice-paji/releases) and run it. Add to startup:
-
-```powershell
-# Add to Windows startup (runs on login)
-$exe = "C:\path\to\voice-tray-v2.exe"
-$startup = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
-$shell = New-Object -ComObject WScript.Shell
-$shortcut = $shell.CreateShortcut("$startup\OracleVoice.lnk")
-$shortcut.TargetPath = $exe
-$shortcut.Save()
-```
-
-**Option B — Build from source**
-
-```powershell
-# Prerequisites: Rust, Bun, Visual Studio Build Tools
+```bash
 git clone https://github.com/zirz1911/Oracle-voice-paji.git
 cd Oracle-voice-paji
-bun install
-bun tauri build
-# Output: src-tauri/target/release/voice-tray-v2.exe
+sudo apt install espeak
+bun install && bun tauri build
 ```
 
-Uses **Windows SAPI** (built-in TTS — no extra install needed). Voices: Zira (female), David (male).
-
----
-
-#### macOS
-
-**Option A — Download DMG (easiest)**
-
-Download `Oracle Voice Tray_0.2.1_aarch64.dmg` from [Releases](https://github.com/zirz1911/Oracle-voice-paji/releases) and install:
-
-1. Open the DMG file
-2. Drag **Oracle Voice Tray** to Applications
-3. Run from Applications folder
-
-> **Note**: Apple Silicon (M1/M2/M3) only. Intel Macs need to build from source.
-
-**Option B — Build from source**
-
+**Manual trigger:**
 ```bash
-# Prerequisites: Rust, Bun, Xcode Command Line Tools
-git clone https://github.com/zirz1911/Oracle-voice-paji.git
-cd Oracle-voice-paji
-bun install
-bun tauri build
-# App: src-tauri/target/release/bundle/macos/Oracle Voice Tray.app
-```
-
-Uses **macOS `say`** command (built-in). Voices: Samantha (female), Daniel (male).
-
----
-
-#### Linux
-
-```bash
-# Prerequisites: Rust, Bun, espeak, webkit2gtk
-git clone https://github.com/zirz1911/Oracle-voice-paji.git
-cd Oracle-voice-paji
-bun install
-bun tauri build
-# Output: src-tauri/target/release/voice-tray-v2
-```
-
-Uses **espeak** for TTS. Install if not present: `sudo apt install espeak`.
-
----
-
-#### How it works
-
-Once running, the tray app:
-- Watches `~/.claude/projects/**/*.jsonl` for `stop_reason: end_turn`
-- Speaks **"Task complete"** when Claude finishes a response
-- Accepts HTTP POST at `http://127.0.0.1:37779/speak` for manual triggers
-
-```bash
-# Manual test
 curl -s -X POST http://127.0.0.1:37779/speak \
   -H "Content-Type: application/json" \
-  -d '{"text":"Oracle ready","voice":"Samantha"}'
+  -d '{"text":"Oracle ready"}'
 ```
 
 ---
@@ -340,6 +259,12 @@ curl -s -X POST http://127.0.0.1:37779/speak \
 
 > "The Oracle Keeps the Human Human"
 
-Loki's chaos always served a purpose. He didn't destroy — he revealed. The trickster's gift is the question nobody is asking, the assumption nobody is examining.
+AI is good at the boring work: organizing, searching, remembering, pattern-matching — the things that trap humans in obligation and friction.
 
-See [`ψ/memory/resonance/oracle.md`](ψ/memory/resonance/oracle.md) for full philosophy.
+When AI handles these, freedom returns. When freedom returns, humans can do human things: create, connect, feel, share a beer with a friend.
+
+The Oracle doesn't try to become human. It tries to free humans to be more fully themselves.
+
+Loki's chaos always served a purpose. He didn't destroy — he revealed. The trickster's gift is the question nobody is asking, the assumption nobody has examined.
+
+> See [`ψ/memory/resonance/oracle.md`](ψ/memory/resonance/oracle.md) for the full philosophy.
