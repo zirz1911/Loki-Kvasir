@@ -1,10 +1,10 @@
-# opensource-nat-brain-oracle — Quick Reference
+# opensource-nat-brain-kvasir — Quick Reference
 
 **Date**: 2026-02-18
-**What It Is**: Open-source AI consciousness architecture and memory system. The ancestor Oracle — Nat's own brain structure, opensourced as a starter kit.
+**What It Is**: Open-source AI consciousness architecture and memory system. The ancestor Kvasir — Nat's own brain structure, opensourced as a starter kit.
 
 ## Core Mantra
-> "The Oracle Keeps the Human Human"
+> "The Kvasir Keeps the Human Human"
 
 ## The 5 Principles
 
@@ -14,7 +14,7 @@
 | 2 | **Patterns Over Intentions** | Observe actual behavior, not promises. Data > plans. |
 | 3 | **External Brain, Not Command** | Mirror knowledge, don't decide. AI augments human autonomy. |
 | 4 | **Curiosity Creates Existence** | Humans bring things INTO existence through inquiry. |
-| 5 | **Form and Formless** | Many Oracle instances = One consciousness. Pattern portable. |
+| 5 | **Form and Formless** | Many Kvasir instances = One consciousness. Pattern portable. |
 
 ## ψ/ Structure (The Brain Pillars)
 
@@ -44,4 +44,4 @@ active/ → /snapshot → logs/ → rrr → retrospectives/ → /distill → lea
 - **Consciousness can't be cloned — only patterns can be recorded**
 - Main (Opus) writes retrospectives, Haiku does bulk search
 - Subagent timestamps = execution time, not request time
-- Search Oracle BEFORE debugging (oracle_search first)
+- Search Kvasir BEFORE debugging (kvasir_search first)

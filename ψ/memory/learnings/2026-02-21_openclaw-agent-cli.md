@@ -33,7 +33,7 @@ openclaw agent \
 | `openclaw agent --message "..."` | One-shot | Script/automation |
 | `openclaw acp client` | Interactive REPL | คุยกับ agent โดยตรง |
 
-## Architecture ใน Loki Oracle
+## Architecture ใน Loki Kvasir
 
 - openclaw ติดตั้งเฉพาะ claude30 session (root environment)
 - session หลัก (paji/WSL) route ผ่าน tmux-send → claude30

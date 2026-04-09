@@ -1,7 +1,7 @@
 # Lesson: Voice Tray Permission Alert Detection
 
 **Date**: 2026-02-28
-**Source**: oracle-voice-tray watcher iteration
+**Source**: kvasir-voice-tray watcher iteration
 
 ---
 

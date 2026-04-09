@@ -1,5 +1,5 @@
 # Lesson: Agent Routing + /learn Patterns on Windows
-**Date**: 2026-03-05 | **Source**: rrr: Loki-Oracle
+**Date**: 2026-03-05 | **Source**: rrr: Loki-Kvasir
 
 ## Core Lessons
 
@@ -17,11 +17,11 @@ UTF-8 paths with ψ break in bash variable expansion on Windows (Git Bash/MSYS2)
 **Always hardcode the full path** — never assign ψ to a shell variable.
 ```bash
 # BROKEN
-PSI_DIR="D:/Loki-Oracle/Loki-Oracle/ψ/learn"
+PSI_DIR="D:/Loki-Kvasir/Loki-Kvasir/ψ/learn"
 mkdir -p "$PSI_DIR/foo"  # encoding corruption
 
 # WORKS
-mkdir -p "D:/Loki-Oracle/Loki-Oracle/ψ/learn/foo"
+mkdir -p "D:/Loki-Kvasir/Loki-Kvasir/ψ/learn/foo"
 ```
 
 ### 3. ghq not installed — use manual D:/ghq/ convention
@@ -34,7 +34,7 @@ gemgen pattern: 500+ line system prompts serve as both AI instructions AND block
 
 ### 5. Stack evolution reveals intent
 Reading a user's repos chronologically shows growth arc, not just current state.
-2022 JS → 2024 Angular → 2025-Q4 Python AI → 2026 Rust+TypeScript+Oracle = systems thinker emerging.
+2022 JS → 2024 Angular → 2025-Q4 Python AI → 2026 Rust+TypeScript+Kvasir = systems thinker emerging.
 Always scan the full repo list and timeline before diving into any single repo.
 
 ## Tags

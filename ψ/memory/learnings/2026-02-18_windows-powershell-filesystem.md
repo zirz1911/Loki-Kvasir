@@ -36,7 +36,7 @@ powershell.exe -Command "Test-Path 'D:\Path\file.txt'"
 
 ## Why
 
-The bash shell in Claude Code on Windows operates from a specific working directory (e.g., `D:\Loki-Oracle\Loki-Oracle`). It cannot traverse to other paths using Unix conventions because the MSYS/Git Bash layer doesn't map Windows drive letters the same way.
+The bash shell in Claude Code on Windows operates from a specific working directory (e.g., `D:\Loki-Kvasir\Loki-Kvasir`). It cannot traverse to other paths using Unix conventions because the MSYS/Git Bash layer doesn't map Windows drive letters the same way.
 
 ## Also Applies To
 

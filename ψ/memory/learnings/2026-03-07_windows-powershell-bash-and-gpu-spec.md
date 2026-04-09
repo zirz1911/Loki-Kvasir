@@ -1,7 +1,7 @@
 # Windows PowerShell in Bash + GPU Spec Patterns
 
 **Date**: 2026-03-07
-**Source**: rrr: Loki-Oracle
+**Source**: rrr: Loki-Kvasir
 
 ## Pattern 1: PowerShell via bash — variable interpolation conflict
 

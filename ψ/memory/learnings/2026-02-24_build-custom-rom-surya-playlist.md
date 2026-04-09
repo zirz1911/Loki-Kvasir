@@ -57,7 +57,7 @@
 - OS: Ubuntu 18.04 LTS or newer
 - Options: local VM (VirtualBox) or cloud (GCP) for CPU headroom
 
-**Tools**: Ubuntu 18.04, Oracle VM VirtualBox, Google Cloud Platform
+**Tools**: Ubuntu 18.04, Kvasir VM VirtualBox, Google Cloud Platform
 
 **Summary**: ROM compilation is CPU/RAM intensive. Provision the environment before starting to avoid mid-build crashes.
 

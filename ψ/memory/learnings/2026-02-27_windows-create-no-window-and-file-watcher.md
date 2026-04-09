@@ -1,7 +1,7 @@
 # Windows: CREATE_NO_WINDOW + File Watcher Pattern
 
 **Date**: 2026-02-27
-**Source**: Oracle Voice Tray debugging session
+**Source**: Kvasir Voice Tray debugging session
 
 ---
 
@@ -23,7 +23,7 @@ Command::new("powershell")
 
 **Why not SW_HIDE?** `SW_HIDE` sets `wShowWindow` in STARTUPINFO — for console apps, this is unreliable. `CREATE_NO_WINDOW` is the `dwCreationFlags` path — it tells Windows not to create a console at all.
 
-**Context**: Fixed Oracle Voice Tray (`tray.rs`) — PowerShell TTS was spawning a visible window on every voice playback.
+**Context**: Fixed Kvasir Voice Tray (`tray.rs`) — PowerShell TTS was spawning a visible window on every voice playback.
 
 ---
 
@@ -31,7 +31,7 @@ Command::new("powershell")
 
 Instead of using shell-based hooks (which spawn visible subprocesses on Windows), watch an existing log/event file directly.
 
-**Applied to**: Claude Code session watcher in Oracle Voice Tray
+**Applied to**: Claude Code session watcher in Kvasir Voice Tray
 
 ```rust
 // Watch ~/.claude/projects/**/*.jsonl

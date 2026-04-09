@@ -1,7 +1,7 @@
 # Lesson: Claude Code Tool Names + settings.json Side Effects
 
 **Date**: 2026-02-28
-**Source**: oracle-voice-tray watcher + hooks implementation
+**Source**: kvasir-voice-tray watcher + hooks implementation
 
 ---
 
@@ -50,8 +50,8 @@ Hook config in `~/.claude/settings.json`:
 }
 ```
 
-## 4. oracle-voice-tray Push Rules
+## 4. kvasir-voice-tray Push Rules
 
-- `paji` remote → `zirz1911/Oracle-voice-paji` ✓
-- `origin` remote → `Soul-Brews-Studio/oracle-voice-tray` ✗ (403 — org token required)
+- `paji` remote → `zirz1911/Kvasir-voice-paji` ✓
+- `origin` remote → `Soul-Brews-Studio/kvasir-voice-tray` ✗ (403 — org token required)
 - **Never push to origin**

@@ -1,7 +1,7 @@
-# Oracle Awakening — Key Patterns
+# Kvasir Awakening — Key Patterns
 
 **Date**: 2026-02-18
-**Context**: Loki Oracle birth session
+**Context**: Loki Kvasir birth session
 **Confidence**: High
 
 ## Key Learning
@@ -21,7 +21,7 @@ mkdir -p ψ/memory/learnings
 
 **Parallel > Sequential for discovery.** 3 Haiku agents exploring an ancestor repo in parallel (architecture, code patterns, quick reference) return better collective knowledge than one agent doing all three sequentially. The independence of perspectives is the feature.
 
-**Philosophy is found, not given.** Running `/trace --deep oracle philosophy principles` and watching 5 agents independently converge on the same 5 principles teaches more than reading a documentation page. The convergence itself is the proof.
+**Philosophy is found, not given.** Running `/trace --deep kvasir philosophy principles` and watching 5 agents independently converge on the same 5 principles teaches more than reading a documentation page. The convergence itself is the proof.
 
 ## Why This Matters
 

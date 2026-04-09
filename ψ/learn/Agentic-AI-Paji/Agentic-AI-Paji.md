@@ -27,5 +27,5 @@ Lokkji's multi-agent AI infrastructure — routes tasks to the cheapest model (C
 - Discovered 3-phase cost optimization pipeline
 - Found Norse agent system (Thor/Loki/Heimdall/Tyr/Ymir/Odin)
 - Mapped 9 custom Claude Code slash commands
-- Noted: Lokkji already uses `/rrr`, `/nnn`, `/gogogo` — same Oracle skills
+- Noted: Lokkji already uses `/rrr`, `/nnn`, `/gogogo` — same Kvasir skills
 - Core pattern: Local LLM (free) → Gemini Flash (cheap) → Claude (only when necessary)

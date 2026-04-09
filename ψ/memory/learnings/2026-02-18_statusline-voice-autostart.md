@@ -61,8 +61,8 @@ vim_mode  = (data.get("vim") or {}).get("mode", "")
 ## Pattern 4: Claude Code settings — Windows path format
 
 In `settings.local.json` (hooks, statusLine command), use:
-- **Forward slashes** for `statusLine.command` paths: `"python3 D:/Loki-Oracle/..."` ✓
-- **Backslashes (escaped)** for hook `command` values: `"python3 D:\\Loki-Oracle\\..."` ✓
+- **Forward slashes** for `statusLine.command` paths: `"python3 D:/Loki-Kvasir/..."` ✓
+- **Backslashes (escaped)** for hook `command` values: `"python3 D:\\Loki-Kvasir\\..."` ✓
 
 The statusLine command works with forward slashes. Hooks work with both but escaped backslashes are more reliable.
 

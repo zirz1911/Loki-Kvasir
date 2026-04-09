@@ -19,7 +19,7 @@ bash /home/paji/Project/Loki-Office/scripts/setup.sh
 ```
 
 Creates:
-- `loki-oracle` session: windows `odin thor loki heimdall tyr ymir`
+- `loki-kvasir` session: windows `odin thor loki heimdall tyr ymir`
 - `loki-office` session: server on `:3456`
 
 ## Pattern: Convention-Based Theming
@@ -27,7 +27,7 @@ Creates:
 `ROOM_COLORS` in `constants.ts` is keyed by **tmux session name**. Name your session correctly → UI theme applies automatically.
 
 ```
-loki-oracle → Asgard (gold)
+loki-kvasir → Asgard (gold)
 midgard     → Midgard (green)
 jotunheim   → Jotunheim (blue)
 ...

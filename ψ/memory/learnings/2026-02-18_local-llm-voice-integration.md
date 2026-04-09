@@ -1,7 +1,7 @@
 # Lesson Learned — Local LLM + Voice Integration
 
 **Date**: 2026-02-18
-**Source**: rrr: Loki-Oracle session
+**Source**: rrr: Loki-Kvasir session
 
 ---
 

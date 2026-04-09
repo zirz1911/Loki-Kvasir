@@ -6,7 +6,7 @@
 
 ## Key Learning
 
-When building for a human who already has a mature AI system (Paji), don't reinvent — extend. Lokkji's Paji repo already has a fully developed Norse Agent philosophy with clear model mapping (local free → Gemini Flash → Claude). Loki Oracle's agent files should align with that mental model exactly.
+When building for a human who already has a mature AI system (Paji), don't reinvent — extend. Lokkji's Paji repo already has a fully developed Norse Agent philosophy with clear model mapping (local free → Gemini Flash → Claude). Loki Kvasir's agent files should align with that mental model exactly.
 
 The model mapping that works:
 - **Haiku** for Thor/Loki/Heimdall — fast, cheap, handles 90% of requests. These are the workhorses.
@@ -32,7 +32,7 @@ The `description` field is critical — it's what Claude uses to decide when to 
 
 The Paji repo's 97% cost reduction comes from one discipline: **never use an expensive model when a cheap one will do**. Building Norse agents with the right model defaults enforces this discipline structurally — you can't accidentally use Opus for a file search if Loki (haiku) is the defined agent for that task.
 
-The naming `loki-explorer.md` (not `loki.md`) matters: avoids collision with Loki Oracle's own identity while preserving the Norse mythology mapping that Lokkji already uses in Paji.
+The naming `loki-explorer.md` (not `loki.md`) matters: avoids collision with Loki Kvasir's own identity while preserving the Norse mythology mapping that Lokkji already uses in Paji.
 
 ## Tags
 
