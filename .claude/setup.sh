@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Loki Oracle — Machine Setup
+# Loki Kvasir — Machine Setup
 # Creates .claude/settings.local.json AND .mcp.json with correct absolute paths.
 # Safe to run multiple times — merges with existing config.
 #
@@ -53,7 +53,7 @@ else
     ENV_LABEL="Windows/Linux native"
 fi
 
-echo "🔧 Loki Oracle — Setup"
+echo "🔧 Loki Kvasir — Setup"
 echo "   Repo:        $REPO_ROOT"
 echo "   Environment: $ENV_LABEL"
 echo "   Ollama:      $OLLAMA_HOST"
@@ -192,10 +192,10 @@ echo ""
 if $VOICE_AVAILABLE; then
     echo "🔊 Voice Tray check..."
     if curl -s --max-time 2 http://127.0.0.1:37779/status > /dev/null 2>&1; then
-        echo "  ✓ oracle-voice-tray already running"
+        echo "  ✓ kvasir-voice-tray already running"
     else
-        echo "  ⚠ oracle-voice-tray not running"
-        echo "    → Start manually: cd D:\\oracle-voice-tray && npm run tauri dev"
+        echo "  ⚠ kvasir-voice-tray not running"
+        echo "    → Start manually: cd D:\\kvasir-voice-tray && npm run tauri dev"
         echo "    → Or let SessionStart hook auto-launch it when Claude Code starts"
     fi
     echo ""

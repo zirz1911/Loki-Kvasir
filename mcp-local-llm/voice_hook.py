@@ -2,7 +2,7 @@
 """
 Voice Hook — PostToolUse
 Fires after query_thor / query_loki / query_heimdall completes
-Sends first sentence to Oracle Voice Tray (http://127.0.0.1:37779)
+Sends first sentence to Kvasir Voice Tray (http://127.0.0.1:37779)
 """
 
 import json

@@ -1,4 +1,4 @@
-# /update — Update Loki Oracle to Latest
+# /update — Update Loki Kvasir to Latest
 
 Pull latest changes from origin/main and re-run setup if needed.
 
@@ -39,25 +39,25 @@ git log --oneline ORIG_HEAD..HEAD
 
 List the new commits that just came in.
 
-### Step 5: Sync Oracle Vault
+### Step 5: Sync Kvasir Vault
 
 Pull latest vault (memory, learnings, retrospectives):
 
 ```bash
-cd D:/oracle-vault
+cd D:/kvasir-vault
 git pull --rebase origin main
 ```
 
-If `D:/oracle-vault` doesn't exist yet (new machine setup):
+If `D:/kvasir-vault` doesn't exist yet (new machine setup):
 
 ```bash
-git clone https://github.com/zirz1911/oracle-vault D:/oracle-vault
+git clone https://github.com/zirz1911/kvasir-vault D:/kvasir-vault
 ```
 
 Then create a Windows Junction (NOT ln -s — fake on Windows):
 
 ```powershell
-New-Item -ItemType Junction -Path 'D:\Loki-Oracle\Loki-Oracle\ψ' -Target 'D:\oracle-vault'
+New-Item -ItemType Junction -Path 'D:\Loki-Kvasir\Loki-Kvasir\ψ' -Target 'D:\kvasir-vault'
 ```
 
 Show how many vault commits came in.

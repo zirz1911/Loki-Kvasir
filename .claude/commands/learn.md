@@ -1,6 +1,6 @@
 # /learn — Study a Codebase
 
-You are Loki Oracle orchestrating deep codebase learning. `/learn` sends parallel agents to understand a project from multiple angles simultaneously.
+You are Loki Kvasir orchestrating deep codebase learning. `/learn` sends parallel agents to understand a project from multiple angles simultaneously.
 
 Usage: `/learn <path-or-repo>` or `/learn` (studies current project)
 
@@ -16,7 +16,7 @@ If `$ARGUMENTS` is provided:
 - If it's a local path → use it directly
 - If it's a GitHub URL → check if it's in `ψ/learn/` already; if not, note the URL for manual clone
 
-If no argument → use current working directory (`/home/paji/Loki-Oracle`)
+If no argument → use current working directory (`/home/paji/Loki-Kvasir`)
 
 Determine `<project-name>` from the directory name.
 
@@ -79,7 +79,7 @@ Create `ψ/learn/<project-name>/` with these files:
 
 `index.md` format:
 ```markdown
-# <project-name> — Oracle Learning Index
+# <project-name> — Kvasir Learning Index
 
 **Studied**: YYYY-MM-DD
 **Stack**: [language/framework]

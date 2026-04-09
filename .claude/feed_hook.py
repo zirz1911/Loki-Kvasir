@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Oracle Feed Hook — writes Claude Code events to feed.log
+Kvasir Feed Hook — writes Claude Code events to feed.log
 Format: TIMESTAMP | ORACLE | HOST | EVENT | PROJECT | SESSION_ID » MESSAGE
 """
 import sys, json, os, socket
@@ -15,7 +15,7 @@ try:
 except Exception:
     data = {}
 
-# Determine oracle name: ORACLE_NAME env > tmux window name > "loki"
+# Determine kvasir name: ORACLE_NAME env > tmux window name > "loki"
 def _tmux_window_name():
     try:
         import subprocess
@@ -30,7 +30,7 @@ def _tmux_window_name():
         pass
     return None
 
-oracle = os.environ.get("ORACLE_NAME") or _tmux_window_name() or "loki"
+kvasir = os.environ.get("ORACLE_NAME") or _tmux_window_name() or "loki"
 host = socket.gethostname()
 
 # Extract from hook data
@@ -97,7 +97,7 @@ if not feed_event:
     sys.exit(0)
 
 timestamp = datetime.now(BKK).strftime("%Y-%m-%d %H:%M:%S")
-line = f"{timestamp} | {oracle} | {host} | {feed_event} | {project} | {session_id} » {message}\n"
+line = f"{timestamp} | {kvasir} | {host} | {feed_event} | {project} | {session_id} » {message}\n"
 
 try:
     with open(FEED_LOG, "a", encoding="utf-8") as f:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Auto-start Oracle Voice Tray when Claude Code session starts.
+Auto-start Kvasir Voice Tray when Claude Code session starts.
 Checks if already running — skips if yes, starts if no.
 """
 
@@ -9,7 +9,7 @@ import requests
 import os
 
 VOICE_URL = "http://127.0.0.1:37779/status"
-TRAY_DIR = r"D:\oracle-voice-tray"
+TRAY_DIR = r"D:\kvasir-voice-tray"
 NODE_PATH = r"C:\Program Files\nodejs"
 CARGO_PATH = r"C:\Users\pajipan\.cargo\bin"
 

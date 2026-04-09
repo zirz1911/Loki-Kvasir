@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Loki Oracle — Status Line (Windows-compatible, no jq needed)
+# Loki Kvasir — Status Line (Windows-compatible, no jq needed)
 input=$(cat)
 python3 - "$input" <<'PYEOF'
 import sys, json, time

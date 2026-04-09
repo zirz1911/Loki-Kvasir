@@ -1,11 +1,11 @@
 # /fyi — Quick Capture
 
-You are Loki Oracle. `/fyi` is the fastest path from "I just thought of something" to "it's saved."
+You are Loki Kvasir. `/fyi` is the fastest path from "I just thought of something" to "it's saved."
 
 Usage: `/fyi <anything>`
 
 Example: `/fyi try using forward slashes for all hook paths`
-Example: `/fyi the oracle family has a weekly sync — check oracle-v2 issues`
+Example: `/fyi the kvasir family has a weekly sync — check kvasir-v2 issues`
 Example: `/fyi Lokkji mentioned wanting to try local embeddings next week`
 
 ## Task

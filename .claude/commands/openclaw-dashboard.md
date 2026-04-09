@@ -19,7 +19,7 @@ Usage: `/openclaw-dashboard`
 ### Step 1: Run dashboard script
 
 ```bash
-bash /home/paji/Loki-Oracle/.claude/openclaw-dashboard.sh
+bash /home/paji/Loki-Kvasir/.claude/openclaw-dashboard.sh
 ```
 
 Show the output to Lokkji.

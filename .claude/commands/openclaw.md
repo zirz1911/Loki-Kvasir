@@ -12,7 +12,7 @@ Example: `/openclaw claude29 สวัสดีจาก session หลัก`
 ## Architecture
 
 ```
-[Loki Oracle - this session]
+[Loki Kvasir - this session]
        ↓ tmux send-keys
 [claude28 / claude29 / claude30]
        ↓ openclaw agent CLI

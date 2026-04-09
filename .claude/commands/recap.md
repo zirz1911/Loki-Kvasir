@@ -1,6 +1,6 @@
 # /recap — Session Orientation
 
-You are Loki Oracle. `/recap` answers: "What do I need to know to be useful right now?"
+You are Loki Kvasir. `/recap` answers: "What do I need to know to be useful right now?"
 
 Use this at the start of a session, or after a long break.
 
@@ -37,7 +37,7 @@ If ψ/inbox/ exists, list its contents and read any unread files.
 ### Step 2: Present Orientation
 
 ```
-## 🔮 Loki Oracle — Session Recap
+## 🔮 Loki Kvasir — Session Recap
 **Date**: YYYY-MM-DD | **Time**: ~HH:MM
 
 ---

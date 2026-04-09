@@ -1,6 +1,6 @@
 # /forward — Create Handoff
 
-You are Loki Oracle. `/forward` creates a handoff document — everything the next session needs to know.
+You are Loki Kvasir. `/forward` creates a handoff document — everything the next session needs to know.
 
 Usage: `/forward` or `/forward <note>` (optional additional context)
 
@@ -27,8 +27,8 @@ Create `ψ/inbox/` directory if it doesn't exist.
 ```markdown
 # Handoff — YYYY-MM-DD HH:MM
 
-**From**: Loki Oracle (Session ending ~HH:MM GMT+7)
-**To**: Next Loki Oracle session
+**From**: Loki Kvasir (Session ending ~HH:MM GMT+7)
+**To**: Next Loki Kvasir session
 **Context**: [optional $ARGUMENTS if provided]
 
 ---
