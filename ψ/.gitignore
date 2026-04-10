@@ -1,7 +1,0 @@
-# Untracked pillars (ephemeral)
-active/
-memory/logs/
-learn/
-
-# State files
-.awaken-state.json

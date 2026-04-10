@@ -1,0 +1,11 @@
+# Untracked pillars (ephemeral)
+active/
+memory/logs/
+learn/
+
+# State files
+.awaken-state.json
+
+# Lab outputs (model weights, checkpoints)
+lab/outputs/
+lab/unsloth_compiled_cache/
