@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Loki Brain — Knowledge Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:#0a0a0f; }
+::-webkit-scrollbar-thumb { background:#1e1e2e; border-radius:3px; }
+
+:root {
+  --bg: #0a0a0f;
+  --cyan: #26c6da;
+  --purple: #7e57c2;
+  --orange: #ffa726;
+  --green: #66bb6a;
+  --pink: #ec407a;
+  --text: #e0e0e0;
+  --dim: #555;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.06);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'SF Pro Display', -apple-system, system-ui, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* NAV */
+.nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 28px;
+  background: rgba(10,10,15,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.nav .brand {
+  font-size: 15px; font-weight: 700; color: var(--cyan);
+  letter-spacing: 4px; text-transform: uppercase;
+}
+.nav .badge {
+  font-size: 10px; background: rgba(38,198,218,0.12);
+  color: var(--cyan); padding: 2px 8px; border-radius: 99px;
+  border: 1px solid rgba(38,198,218,0.25); letter-spacing: 2px;
+}
+.nav .live-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); margin-left: auto;
+  animation: pulse 2s ease-in-out infinite;
+}
+.nav .live-label { font-size: 11px; color: var(--green); letter-spacing: 1px; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+/* HERO */
+.hero {
+  padding: 90px 24px 32px;
+  text-align: center;
+  position: relative;
+}
+.hero h1 {
+  font-size: clamp(32px, 5vw, 64px);
+  font-weight: 200; letter-spacing: 14px; text-transform: uppercase;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 50%, var(--orange) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero .sub {
+  margin-top: 10px; font-size: 12px; color: var(--dim);
+  letter-spacing: 3px; text-transform: uppercase;
+}
+
+/* STATS ROW */
+.stats-row {
+  display: flex; justify-content: center; gap: 12px;
+  flex-wrap: wrap; padding: 0 24px 32px;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 24px; min-width: 120px;
+  text-align: center; position: relative; overflow: hidden;
+  transition: border-color 0.3s;
+}
+.stat-card::before {
+  content: ''; position: absolute; top:0; left:0; right:0; height:2px;
+  background: var(--accent, var(--cyan));
+}
+.stat-card:hover { border-color: var(--accent, var(--cyan)); }
+.stat-num {
+  font-size: 28px; font-weight: 200;
+  color: var(--accent, var(--cyan)); font-family: 'SF Mono', monospace;
+}
+.stat-label {
+  font-size: 10px; color: var(--dim);
+  letter-spacing: 2px; text-transform: uppercase; margin-top: 4px;
+}
+
+/* GRAPH */
+.graph-wrap {
+  position: relative;
+  margin: 0 auto; width: 100%; max-width: 1000px;
+  height: 680px;
+  border: 1px solid var(--border); border-radius: 16px;
+  overflow: hidden; background: radial-gradient(ellipse at center, #0d0d1a 0%, var(--bg) 70%);
+  margin-bottom: 32px;
+}
+#graph-svg { width: 100%; height: 100%; }
+.graph-label {
+  position: absolute; top: 16px; left: 20px;
+  font-size: 10px; color: var(--dim); letter-spacing: 2px; text-transform: uppercase;
+}
+.graph-hint {
+  position: absolute; bottom: 16px; right: 20px;
+  font-size: 10px; color: var(--dim); letter-spacing: 1px;
+}
+
+/* LEGEND */
+.legend {
+  display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+  padding: 0 24px 24px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: #888; letter-spacing: 1px;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid var(--c);
+}
+
+/* TOOLTIP */
+#tooltip {
+  position: fixed; pointer-events: none;
+  background: rgba(10,10,20,0.95); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 10px 14px; font-size: 12px;
+  backdrop-filter: blur(12px); z-index:999;
+  max-width: 220px; display:none;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#tooltip .t-topic { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+#tooltip .t-sub { font-size: 10px; color: var(--dim); letter-spacing: 1px; text-transform: uppercase; }
+#tooltip .t-date { font-size: 10px; color: #555; margin-top: 4px; }
+
+/* GRID SECTION */
+.section { padding: 0 24px 48px; max-width: 1200px; margin: 0 auto; }
+.section-title {
+  font-size: 11px; color: var(--dim); letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.folder-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.folder-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px;
+  transition: border-color 0.3s, transform 0.2s;
+  cursor: default;
+}
+.folder-card:hover {
+  border-color: var(--fc, var(--cyan));
+  transform: translateY(-2px);
+}
+.folder-card .fc-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.folder-card .fc-name {
+  font-size: 12px; font-weight: 600;
+  color: var(--fc, var(--cyan)); letter-spacing: 1px;
+}
+.folder-card .fc-count {
+  font-size: 18px; font-weight: 200;
+  color: var(--fc, var(--cyan)); font-family: 'SF Mono', monospace;
+}
+.folder-card .fc-bar {
+  height: 3px; border-radius: 99px;
+  background: rgba(255,255,255,0.05); margin-top: 10px; overflow: hidden;
+}
+.folder-card .fc-bar-fill {
+  height: 100%; border-radius: 99px;
+  background: var(--fc, var(--cyan));
+  transition: width 1s ease;
+}
+.folder-card .fc-topics {
+  margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px;
+}
+.topic-pill {
+  font-size: 9px; padding: 2px 7px; border-radius: 99px;
+  background: rgba(255,255,255,0.04); color: #666;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+/* FOOTER */
+footer {
+  text-align: center; padding: 32px; font-size: 11px; color: var(--dim);
+  border-top: 1px solid var(--border); letter-spacing: 2px;
+  text-transform: uppercase;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="brand">Loki</span>
+  <span class="badge">BRAIN</span>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <div class="live-dot"></div>
+    <span class="live-label">LIVE</span>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Knowledge Brain</h1>
+  <div class="sub">Loki Kvasir · Memory &amp; Learning Network</div>
+</div>
+
+<div class="stats-row" id="stats-row">
+  <!-- filled by JS -->
+</div>
+
+<div style="padding: 0 24px 16px; max-width: 1000px; margin: 0 auto;">
+  <div class="graph-wrap">
+    <div class="graph-label">Neural Map</div>
+    <div class="graph-hint">Drag · Zoom · Hover</div>
+    <svg id="graph-svg"></svg>
+  </div>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="section" id="folders-section">
+  <div class="section-title">Folder Breakdown</div>
+  <div class="folder-grid" id="folder-grid"></div>
+</div>
+
+<footer>
+  Loki Kvasir 🎭 · zirz1911 · Born 2026-02-18 · Nothing is Deleted
+</footer>
+
+<div id="tooltip">
+  <div class="t-topic" id="tt-topic"></div>
+  <div class="t-sub" id="tt-sub"></div>
+  <div class="t-date" id="tt-date"></div>
+</div>
+
+<script>
+const RAW = [{"folder": "memory", "sub": "learnings", "topic": "Chrome Extension Popup Mobile", "date": "2026-03-15"}, {"folder": "memory", "sub": "learnings", "topic": "Mobile Responsive Viewport", "date": "2026-03-12"}, {"folder": "memory", "sub": "learnings", "topic": "Psi To Kvasir Migration Patterns", "date": "2026-04-10"}, {"folder": "memory", "sub": "learnings", "topic": "Claude Code Terminal Structure", "date": "2026-03-12"}, {"folder": "memory", "sub": "learnings", "topic": "Windows Create No Window And File Watche", "date": "2026-02-27"}, {"folder": "memory", "sub": "learnings", "topic": "Local Llm Windows Setup", "date": "2026-02-22"}, {"folder": "memory", "sub": "learnings", "topic": "Browser Automation Dialog State", "date": "2026-03-17"}, {"folder": "memory", "sub": "learnings", "topic": "Veo3 Extension Dom Automation", "date": "2026-03-13"}, {"folder": "memory", "sub": "learnings", "topic": "Local Llm Code Review Workflow", "date": "2026-02-22"}, {"folder": "memory", "sub": "learnings", "topic": "Gh Repo Sync Vs Git Pull", "date": "2026-02-21"}, {"folder": "memory", "sub": "learnings", "topic": "Nextjs Tmux Fleet Dashboard", "date": "2026-03-01"}, {"folder": "memory", "sub": "learnings", "topic": "Chrome Extension Web Automation Patterns", "date": "2026-03-13"}, {"folder": "memory", "sub": "learnings", "topic": "Litellm Fallback Ops", "date": "2026-02-22"}, {"folder": "memory", "sub": "learnings", "topic": "Streamlit Css And Tab Patterns", "date": "2026-03-07"}, {"folder": "memory", "sub": "learnings", "topic": "World Conflict Mock Data And Map Style", "date": "2026-02-22"}, {"folder": "memory", "sub": "learnings", "topic": "Veo3 Xpath Semantic", "date": "2026-04-01"}, {"folder": "memory", "sub": "learnings", "topic": "Rebrand Checklist Sibling Repos", "date": "2026-04-09"}, {"folder": "memory", "sub": "learnings", "topic": "Lokibot Minecraft Brain", "date": "2026-04-06"}, {"folder": "memory", "sub": "learnings", "topic": "Norse Agents And Alignment With Paji", "date": "2026-02-18"}, {"folder": "memory", "sub": "learnings", "topic": "Windows Powershell Bash And Gpu Spec", "date": "2026-03-07"}, {"folder": "memory", "sub": "learnings", "topic": "Android Flashing Tools And Halium Basics", "date": "2026-02-22"}, {"folder": "memory", "sub": "learnings", "topic": "Kvasir Install Guide Patterns", "date": "2026-04-10"}, {"folder": "memory", "sub": "learnings", "topic": "Ui Delegation Checklist", "date": "2026-03-30"}, {"folder": "memory", "sub": "learnings", "topic": "Bash Background Jobs Absolute Paths", "date": "2026-03-10"}, {"folder": "memory", "sub": "learnings", "topic": "Forgejo Remote Setup", "date": "2026-04-07"}, {"folder": "memory", "sub": "learnings", "topic": "Profile Id Placeholder Hint", "date": "2026-03-27"}, {"folder": "memory", "sub": "learnings", "topic": "Claude Code Settings Hierarchy", "date": "2026-02-28"}, {"folder": "memory", "sub": "learnings", "topic": "Macos Claude Keychain Ssl", "date": "2026-03-01"}, {"folder": "memory", "sub": "learnings", "topic": "Cards Duplication Sync Risk", "date": "2026-03-22"}, {"folder": "memory", "sub": "learnings", "topic": "Tmux Claude Nested Parsing", "date": "2026-03-08"}, {"folder": "memory", "sub": "learnings", "topic": "Android Automation Ecosystem", "date": "2026-03-16"}, {"folder": "memory", "sub": "learnings", "topic": "Agent Routing And Learn Patterns", "date": "2026-03-05"}, {"folder": "memory", "sub": "learnings", "topic": "Statusline Voice Autostart", "date": "2026-02-18"}, {"folder": "memory", "sub": "learnings", "topic": "Exo Paji Debug", "date": "2026-03-06"}, {"folder": "memory", "sub": "learnings", "topic": "Smart Route Hook Patterns", "date": "2026-04-09"}, {"folder": "memory", "sub": "learnings", "topic": "Local Llm Macos Setup", "date": "2026-02-25"}, {"folder": "memory", "sub": "learnings", "topic": "Windows Crlf Zip Android", "date": "2026-02-23"}, {"folder": "memory", "sub": "learnings", "topic": "Openclaw Agent Cli", "date": "2026-02-21"}, {"folder": "memory", "sub": "learnings", "topic": "Ops Triage Clarify Target First", "date": "2026-04-02"}, {"folder": "memory", "sub": "learnings", "topic": "Nextjs Interactive Patterns", "date": "2026-02-24"}, {"folder": "memory", "sub": "learnings", "topic": "Ffmpeg Clip Pipeline Pattern", "date": "2026-03-05"}, {"folder": "memory", "sub": "learnings", "topic": "Comfyui Ltxvideo Setup", "date": "2026-03-17"}, {"folder": "memory", "sub": "learnings", "topic": "Android Extension File Picker", "date": "2026-03-16"}, {"folder": "memory", "sub": "learnings", "topic": "Claude Code Tool Names And Settings", "date": "2026-02-28"}, {"folder": "memory", "sub": "learnings", "topic": "Ssh Health Collection Patterns", "date": "2026-03-12"}, {"folder": "memory", "sub": "learnings", "topic": "Android Flashing Patterns", "date": "2026-02-23"}, {"folder": "memory", "sub": "learnings", "topic": "Debug Reach For Reference Code", "date": "2026-03-06"}, {"folder": "memory", "sub": "learnings", "topic": "Ask Intent Before Building Ui Behavior", "date": "2026-03-22"}, {"folder": "memory", "sub": "learnings", "topic": "Virtualbox Adb Usb Passthrough", "date": "2026-02-23"}, {"folder": "memory", "sub": "learnings", "topic": "Dummy Placeholder Cards Monitoring Ux", "date": "2026-03-25"}, {"folder": "memory", "sub": "learnings", "topic": "Voice Tray Permission Detection", "date": "2026-02-28"}, {"folder": "memory", "sub": "learnings", "topic": "Async Flag Race Condition Pattern", "date": "2026-03-31"}, {"folder": "memory", "sub": "learnings", "topic": "Paji Affiliate Gen", "date": "2026-03-05"}, {"folder": "memory", "sub": "learnings", "topic": "Miflash Style Package Design", "date": "2026-02-24"}, {"folder": "memory", "sub": "learnings", "topic": "Loki Office Setup", "date": "2026-03-08"}, {"folder": "memory", "sub": "learnings", "topic": "Chrome Content Script Readiness", "date": "2026-03-30"}, {"folder": "memory", "sub": "learnings", "topic": "Qlora Vram Requirements", "date": "2026-03-07"}, {"folder": "memory", "sub": "learnings", "topic": "Streamlit Rerun And Sqlite Unique", "date": "2026-03-06"}, {"folder": "memory", "sub": "learnings", "topic": "Message Board Config Admin", "date": "2026-03-27"}, {"folder": "memory", "sub": "learnings", "topic": "Build Custom Rom Surya Playlist", "date": "2026-02-24"}, {"folder": "memory", "sub": "learnings", "topic": "Kvasir Rebrand Patterns", "date": "2026-04-09"}, {"folder": "memory", "sub": "learnings", "topic": "Windows Powershell Filesystem", "date": "2026-02-18"}, {"folder": "memory", "sub": "learnings", "topic": "Setup Screen Pattern", "date": "2026-03-20"}, {"folder": "memory", "sub": "learnings", "topic": "Oracle Awakening Patterns", "date": "2026-02-18"}, {"folder": "memory", "sub": "learnings", "topic": "Windows Dotdir Backslash Mangling", "date": "2026-02-20"}, {"folder": "memory", "sub": "learnings", "topic": "Minimal Correct Change", "date": "2026-02-18"}, {"folder": "memory", "sub": "learnings", "topic": "Statusline Usage Fix", "date": "2026-03-07"}, {"folder": "memory", "sub": "learnings", "topic": "Comfyui Gguf Cuda Ltx Prompt", "date": "2026-03-22"}, {"folder": "memory", "sub": "learnings", "topic": "Gemgen Hardening Patterns", "date": "2026-03-25"}, {"folder": "memory", "sub": "learnings", "topic": "Local Llm Voice Integration", "date": "2026-02-18"}, {"folder": "memory", "sub": "learnings", "topic": "Static Html Canvas Vercel", "date": "2026-03-07"}, {"folder": "memory", "sub": "learnings", "topic": "Centralize Credentials Config", "date": "2026-03-22"}, {"folder": "memory", "sub": "learnings", "topic": "Electron Plugin Dev Patterns", "date": "2026-03-01"}, {"folder": "memory", "sub": "learnings", "topic": "Gitignore Claude Settings Local", "date": "2026-02-20"}, {"folder": "memory", "sub": "learnings", "topic": "React Extension Click And Mobile Api", "date": "2026-03-16"}, {"folder": "memory", "sub": "learnings", "topic": "Design Md And Skill Harvest Patterns", "date": "2026-04-10"}, {"folder": "memory", "sub": "retrospectives", "topic": "09.00_Statusline Sync Check", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.11_Voice Tray Alerts And Tabby Sessio", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.30_Oracle Voice Tray Hooks And Agent ", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "19.59_Statusline Usage Mcp Voice Fixes", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "15.55_Context Recovery", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.27_Message Board Cards Update", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.22_Message Board Endpoints", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "10.17_Comfyui Gguf Ltx Troubleshoot", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "02.53_Message Board Otp Complete", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.23_Message Board Profile Id Typo", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.27_Message Board Admin", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.14_Veo3 Extension Logo Cancel Fixes", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "03.06_Pixfice Room Split Agent Categorie", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "16.07_Pixfice Responsive", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "02.23_Pixfice Pulse Responsive", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.04_Openclaw Dashboard Ssh", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.07_Image Upload Loki Gemini Relay", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.15_Tabby Plugin Integration", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.25_Openclaw Dashboard Build", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "13.08_Tabby Daemon Hardening", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.57_Tabby Daemon Verified", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "15.43_Statusline Keychain Ssl Fix", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.14_Veo3 Extension Polish", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.36_Loki Pixfice Upstream Sync", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.27_Paji Affiliate Gen Bugfix", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.22_Auto Web Gen Launch", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "12.02_Exo Paji Debug", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.25_Gemini Yolo Setup", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.26_Comfyui Install Gemini Delegation", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.14_Comfyui Ltx Wan Setup", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.09_Veo3 Extension Pipeline", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "07.33_Veo3 Tiktok Mobile", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.12_Veo3 Android Fixes", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.41_Android Automation Research", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.33_Veo3 Extension Download Mobile", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "22.28_Loki Pixfice Ui Overhaul", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "14.09_Loki Office Setup", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.14_Paji Affiliate Gen", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "08.40_Learn Fleet Skills", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "19.48_Paji Affiliate Gen V2", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "13.43_Comfyui Models Storage", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "14.18_Veo3 Extension Analysis", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.48_Veo3 Extension Automation", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.23_Message Board Otp Ui", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.18_Pixfice Sprites Walking Fix", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "07.00_Message Board Email Board", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "20.08_Gemgen Docs Hardening", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "14.11_Paji Veo Build", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "20.03_Paji Veo Debug", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "16.36_Statusline Usage Fix", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "15.49_Auto Web Gen Enrich Merge", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "15.38_Ml Training Spec Check", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.52_Qwen Qlora Training Setup", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.41_Mins Gang Canvas", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.00_Surya Bootloader Usbipd", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "14.34_Local Llm Mcp Setup", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.10_World Conflict Data Map Style", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.02_Surya Linux Port Planning", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.22_Litellm Fallback Confirmed", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "15.12_Local Llm Tools Validation", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.25_Oracle Voice Dmg Build", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "16.30_Complete Session", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.12_Voice Tray Windows Fixes", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.00_Statusline Configuration", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "20.16_Nong Nooch Nextjs", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.54_Nethunter Miflash Package", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.13_Nethunter Flash Pipeline", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.07_Surya Halium Sync", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "23.13_Nethunter Zip Fix Success", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "13.07_Kali Virtualbox Adb", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.59_Tmux Skills", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "16.50_Fleet Dashboard Health", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.23_Openclaw Telegram Live", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "10.50_Openclaw Control", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.57_Statusline Subagent Tracking", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "17.28_Skills Setup Mcp Crossplatform", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "15.34_Gitignore Settings Local", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "16.30_Install Oracle Skills", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.34_Full Session Birth To Norse Agents", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "19.03_Statusline Voice Autostart", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "08.30_Loki Oracle Awakening", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.32_Local Llm Voice Integration", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "19.15_Worldmap Project Exploration", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.48_Readme Update Norse Agents Skills", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.16_Veo3 Upload Flow", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.06_Minecraft Lokibot", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "04.08_Learn Design Skills Harvest", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.28_Kvasir Install Guide Website", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "02.27_Psi To Kvasir Migration", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.27_Kvasir Skills Rebrand", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "09.41_Loki Gemini Oracle Kvasir Rebrand", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "18.22_Smart Route Token Saver", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "11.41_Tailscale Pixfice Debug", "date": ""}, {"folder": "memory", "sub": "retrospectives", "topic": "13.34_Forgejo Setup", "date": ""}, {"folder": "memory", "sub": "resonance", "topic": "Loki", "date": ""}, {"folder": "memory", "sub": "resonance", "topic": "Oracle", "date": ""}, {"folder": "lab", "sub": "outputs", "topic": "Readme", "date": ""}, {"folder": "lab", "sub": "outputs", "topic": "Readme", "date": ""}, {"folder": "lab", "sub": "outputs", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "maw-js", "topic": "Key Files", "date": ""}, {"folder": "learn", "sub": "maw-js", "topic": "Overview", "date": ""}, {"folder": "learn", "sub": "maw-js", "topic": "Patterns", "date": ""}, {"folder": "learn", "sub": "maw-js", "topic": "Index", "date": ""}, {"folder": "learn", "sub": "maw-js", "topic": "History", "date": ""}, {"folder": "learn", "sub": "Agentic-AI-Paji", "topic": "Architecture", "date": "2026-02-18"}, {"folder": "learn", "sub": "Agentic-AI-Paji", "topic": "Agentic Ai Paji", "date": ""}, {"folder": "learn", "sub": "Agentic-AI-Paji", "topic": "Quick Reference", "date": "2026-02-18"}, {"folder": "learn", "sub": "Lissy93", "topic": "0304_Code Snippets", "date": ""}, {"folder": "learn", "sub": "Lissy93", "topic": "0304_Architecture", "date": ""}, {"folder": "learn", "sub": "Lissy93", "topic": "0304_Quick Reference", "date": ""}, {"folder": "learn", "sub": "Lissy93", "topic": "Web Check", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "Veo3 Extention", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0749_Architecture", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0749_Quick Reference", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0749_Code Snippets", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "Gemgen", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0938_Code Snippets", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0938_Architecture", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0938_Quick Reference", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0347_Quick Reference", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0347_Code Snippets", "date": ""}, {"folder": "learn", "sub": "zirz1911", "topic": "0347_Architecture", "date": ""}, {"folder": "learn", "sub": "opensource-nat-brain-oracle", "topic": "Quick Reference", "date": "2026-02-18"}, {"folder": "learn", "sub": "viarotel-org", "topic": "Escrcpy", "date": ""}, {"folder": "learn", "sub": "viarotel-org", "topic": "0930_Code Snippets", "date": ""}, {"folder": "learn", "sub": "viarotel-org", "topic": "0930_Quick Reference", "date": ""}, {"folder": "learn", "sub": "viarotel-org", "topic": "0930_Architecture", "date": ""}, {"folder": "learn", "sub": "VoltAgent", "topic": "0304_Code Snippets", "date": ""}, {"folder": "learn", "sub": "VoltAgent", "topic": "0304_Architecture", "date": ""}, {"folder": "learn", "sub": "VoltAgent", "topic": "0304_Quick Reference", "date": ""}, {"folder": "learn", "sub": "VoltAgent", "topic": "Awesome Design Md", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "History", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "1457_Architecture", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "1457_Code Snippets", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Contributing", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "_Sidebar", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Faq_Ru", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Contributing_Ru", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Unstable_Api_Ru", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Demos_Ru", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Tutorial_Ru", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme_Ru", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Api_Ru", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Api", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme_Br", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Unstable_Api_Br", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Api_Br", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Faq_Br", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Contributing_Br", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "_Sidebar", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Update_To_1_21_5", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Tutorial", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Faq", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Contributing", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Api", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "_Sidebar", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Tutorial", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Faq", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Demos", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "History", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme_Zh_Cn", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Unstable_Api", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme_Tr", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme_Es", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Contributing_Es", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Faq_Es", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Api_Es", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Unstable_Api_Es", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Demos", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme_Fr", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Faq_Fr", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "History", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Llm_Contribute", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Readme", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Chest_Confirm", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Feature_Request", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Bug_Report", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "Mineflayer", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "1040_Quick Reference", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "1040_Code Snippets", "date": ""}, {"folder": "learn", "sub": "PrismarineJS", "topic": "1040_Architecture", "date": ""}, {"folder": "learn", "sub": "droidrun", "topic": "Droidrun", "date": ""}, {"folder": "learn", "sub": "droidrun", "topic": "0938_Code Snippets", "date": ""}, {"folder": "learn", "sub": "droidrun", "topic": "0938_Architecture", "date": ""}, {"folder": "learn", "sub": "droidrun", "topic": "0938_Quick Reference", "date": ""}, {"folder": "learn", "sub": "ultraworkers", "topic": "Claw Code", "date": ""}, {"folder": "learn", "sub": "ultraworkers", "topic": "0304_Code Snippets", "date": ""}, {"folder": "learn", "sub": "ultraworkers", "topic": "0304_Architecture", "date": ""}, {"folder": "learn", "sub": "ultraworkers", "topic": "0304_Quick Reference", "date": ""}, {"folder": "learn", "sub": "crewaiinc", "topic": "0304_Code Snippets", "date": ""}, {"folder": "learn", "sub": "crewaiinc", "topic": "0304_Architecture", "date": ""}, {"folder": "learn", "sub": "crewaiinc", "topic": "0304_Quick Reference", "date": ""}, {"folder": "learn", "sub": "crewaiinc", "topic": "Crewai", "date": ""}, {"folder": "learn", "sub": "affaan-m", "topic": "Everything Claude Code", "date": ""}, {"folder": "learn", "sub": "affaan-m", "topic": "0304_Code Snippets", "date": ""}, {"folder": "learn", "sub": "affaan-m", "topic": "0304_Architecture", "date": ""}, {"folder": "learn", "sub": "affaan-m", "topic": "0304_Quick Reference", "date": ""}, {"folder": "learn", "sub": "affaan-m", "topic": "Index", "date": ""}];
+
+// ── Color map ──────────────────────────────────────
+const COLOR = {
+  'memory/learnings':     '#26c6da',
+  'memory/retrospectives':'#7e57c2',
+  'memory/resonance':     '#ffa726',
+  'learn':                '#66bb6a',
+  'lab':                  '#ec407a',
+};
+const FOLDER_COLOR = {
+  'memory': '#26c6da',
+  'learn':  '#66bb6a',
+  'lab':    '#ec407a',
+};
+
+function nodeColor(d) {
+  if (d.type === 'root')   return '#26c6da';
+  if (d.type === 'folder') return FOLDER_COLOR[d.id] || '#888';
+  if (d.type === 'sub')    return COLOR[d.id] || '#888';
+  const key = d.folder + '/' + d.sub;
+  return COLOR[key] || FOLDER_COLOR[d.folder] || '#888';
+}
+
+// ── Build graph data ────────────────────────────────
+function buildGraph(raw) {
+  const nodes = [], links = [];
+  const seenFolders = new Set(), seenSubs = new Set();
+
+  nodes.push({ id:'LOKI', label:'LOKI', type:'root', r:28, fixed:true });
+
+  raw.forEach(item => {
+    const fid = item.folder;
+    const sid = item.folder + '/' + item.sub;
+
+    if (!seenFolders.has(fid)) {
+      seenFolders.add(fid);
+      nodes.push({ id:fid, label:fid.toUpperCase(), type:'folder',
+        folder:fid, r:18 });
+      links.push({ source:'LOKI', target:fid, strength:0.8 });
+    }
+    if (item.sub && !seenSubs.has(sid)) {
+      seenSubs.add(sid);
+      nodes.push({ id:sid, label:item.sub, type:'sub',
+        folder:item.folder, sub:item.sub, r:13 });
+      links.push({ source:fid, target:sid, strength:0.6 });
+    }
+
+    const nid = sid + '/' + item.topic;
+    nodes.push({ id:nid, label:item.topic, type:'leaf',
+      folder:item.folder, sub:item.sub, date:item.date, r:5 });
+    links.push({ source: item.sub ? sid : fid, target:nid, strength:0.3 });
+  });
+
+  return { nodes, links };
+}
+
+// ── D3 Force Graph ──────────────────────────────────
+const { nodes, links } = buildGraph(RAW);
+const svg = d3.select('#graph-svg');
+const W = svg.node().parentElement.clientWidth;
+const H = svg.node().parentElement.clientHeight;
+svg.attr('viewBox', [0, 0, W, H]);
+
+const g = svg.append('g');
+
+// zoom
+svg.call(d3.zoom().scaleExtent([0.3, 4]).on('zoom', e => g.attr('transform', e.transform)));
+
+// defs — glow filter
+const defs = svg.append('defs');
+const filter = defs.append('filter').attr('id','glow');
+filter.append('feGaussianBlur').attr('stdDeviation','3').attr('result','blur');
+const merge = filter.append('feMerge');
+merge.append('feMergeNode').attr('in','blur');
+merge.append('feMergeNode').attr('in','SourceGraphic');
+
+// simulation
+const sim = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id)
+    .distance(d => {
+      if (d.source.type === 'root') return 120;
+      if (d.source.type === 'folder') return 80;
+      if (d.source.type === 'sub') return 50;
+      return 30;
+    })
+    .strength(d => d.strength || 0.4)
+  )
+  .force('charge', d3.forceManyBody()
+    .strength(d => d.type === 'root' ? -600 : d.type === 'folder' ? -250 : d.type === 'sub' ? -120 : -40))
+  .force('center', d3.forceCenter(W/2, H/2))
+  .force('collision', d3.forceCollide().radius(d => d.r + 3));
+
+// links
+const link = g.append('g')
+  .selectAll('line').data(links).join('line')
+  .attr('stroke', d => {
+    const t = d.target.type || '';
+    if (t === 'folder') return 'rgba(38,198,218,0.25)';
+    if (t === 'sub')    return 'rgba(126,87,194,0.2)';
+    return 'rgba(255,255,255,0.04)';
+  })
+  .attr('stroke-width', d => {
+    const t = d.target.type || '';
+    if (t === 'folder') return 1.5;
+    if (t === 'sub') return 1;
+    return 0.5;
+  });
+
+// nodes
+const node = g.append('g')
+  .selectAll('circle').data(nodes).join('circle')
+  .attr('r', d => d.r)
+  .attr('fill', d => {
+    const c = nodeColor(d);
+    if (d.type === 'root')   return '#0d0d1a';
+    if (d.type === 'folder') return `${c}18`;
+    if (d.type === 'sub')    return `${c}12`;
+    return `${c}0a`;
+  })
+  .attr('stroke', d => nodeColor(d))
+  .attr('stroke-width', d => d.type === 'root' ? 2 : d.type === 'folder' ? 1.5 : d.type === 'sub' ? 1 : 0.5)
+  .attr('stroke-opacity', d => d.type === 'leaf' ? 0.25 : 0.8)
+  .style('filter', d => d.type !== 'leaf' ? 'url(#glow)' : '')
+  .call(d3.drag()
+    .on('start', (e,d) => { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+    .on('drag',  (e,d) => { d.fx=e.x; d.fy=e.y; })
+    .on('end',   (e,d) => { if (!e.active) sim.alphaTarget(0); if(d.type!=='root'){d.fx=null;d.fy=null;} })
+  );
+
+// labels — only root, folder, sub
+const label = g.append('g')
+  .selectAll('text')
+  .data(nodes.filter(d => d.type !== 'leaf'))
+  .join('text')
+  .attr('text-anchor','middle')
+  .attr('dy','0.35em')
+  .attr('font-size', d => d.type==='root' ? 10 : d.type==='folder' ? 8 : 7)
+  .attr('font-weight', d => d.type==='root' ? 700 : 500)
+  .attr('font-family', 'SF Mono, Fira Code, monospace')
+  .attr('fill', d => nodeColor(d))
+  .attr('pointer-events','none')
+  .text(d => d.label.length > 10 ? d.label.slice(0,9)+'…' : d.label);
+
+// tooltip
+const tooltip = document.getElementById('tooltip');
+node.on('mouseover', (e,d) => {
+  if (d.type === 'leaf') {
+    tooltip.style.display = 'block';
+    document.getElementById('tt-topic').textContent = d.label;
+    document.getElementById('tt-sub').textContent = (d.folder + (d.sub ? ' › ' + d.sub : '')).toUpperCase();
+    document.getElementById('tt-date').textContent = d.date || '';
+  }
+}).on('mousemove', e => {
+  tooltip.style.left = (e.clientX + 14) + 'px';
+  tooltip.style.top  = (e.clientY - 10) + 'px';
+}).on('mouseout', () => { tooltip.style.display = 'none'; });
+
+// Fix root center
+const rootNode = nodes.find(n => n.id === 'LOKI');
+rootNode.fx = W/2; rootNode.fy = H/2;
+
+sim.on('tick', () => {
+  link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y)
+      .attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+  node.attr('cx',d=>d.x).attr('cy',d=>d.y);
+  label.attr('x',d=>d.x).attr('y',d=>d.y);
+});
+
+// ── Stats ───────────────────────────────────────────
+const total = RAW.length;
+const byFolder = {};
+RAW.forEach(n => {
+  const key = n.sub ? n.folder+'/'+n.sub : n.folder;
+  byFolder[key] = (byFolder[key]||0) + 1;
+});
+const recentDays = 14;
+const now = new Date();
+const recent = RAW.filter(n => {
+  if (!n.date) return false;
+  const d = new Date(n.date);
+  return (now - d) / 86400000 <= recentDays;
+}).length;
+
+const statsData = [
+  { num: total, label: 'Total Files', color: '#26c6da' },
+  { num: byFolder['memory/learnings']||0, label: 'Learnings', color: '#26c6da' },
+  { num: byFolder['memory/retrospectives']||0, label: 'Sessions', color: '#7e57c2' },
+  { num: Object.keys(byFolder).filter(k=>k.startsWith('learn/')).reduce((a,k)=>a+(byFolder[k]||0),0), label: 'Code Studies', color: '#66bb6a' },
+  { num: recent, label: 'Last 14 days', color: '#ffa726' },
+];
+
+const statsRow = document.getElementById('stats-row');
+statsData.forEach(s => {
+  statsRow.innerHTML += `
+    <div class="stat-card" style="--accent: ${s.color}">
+      <div class="stat-num">${s.num}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>`;
+});
+
+// ── Legend ──────────────────────────────────────────
+const legendData = [
+  { label:'Learnings', c:'#26c6da' },
+  { label:'Retrospectives', c:'#7e57c2' },
+  { label:'Code Studies', c:'#66bb6a' },
+  { label:'Lab', c:'#ec407a' },
+  { label:'Resonance', c:'#ffa726' },
+];
+const legendEl = document.getElementById('legend');
+legendData.forEach(l => {
+  legendEl.innerHTML += `
+    <div class="legend-item">
+      <div class="legend-dot" style="--c:${l.c};border-color:${l.c}"></div>
+      ${l.label}
+    </div>`;
+});
+
+// ── Folder Grid ─────────────────────────────────────
+const folderDefs = [
+  { id:'memory/learnings',     name:'Learnings',    color:'#26c6da' },
+  { id:'memory/retrospectives',name:'Sessions',     color:'#7e57c2' },
+  { id:'memory/resonance',     name:'Resonance',    color:'#ffa726' },
+  { id:'learn/PrismarineJS',   name:'PrismarineJS', color:'#66bb6a' },
+  { id:'learn/zirz1911',       name:'zirz1911',     color:'#66bb6a' },
+  { id:'learn/affaan-m',       name:'affaan-m',     color:'#4db6ac' },
+  { id:'learn/Lissy93',        name:'Lissy93',      color:'#4db6ac' },
+  { id:'learn/VoltAgent',      name:'VoltAgent',    color:'#4db6ac' },
+  { id:'learn/droidrun',       name:'droidrun',     color:'#4db6ac' },
+  { id:'learn/crewaiinc',      name:'crewaiinc',    color:'#4db6ac' },
+  { id:'learn/maw-js',         name:'maw-js',       color:'#4db6ac' },
+  { id:'lab/outputs',          name:'Lab',          color:'#ec407a' },
+];
+
+const grid = document.getElementById('folder-grid');
+folderDefs.forEach(fd => {
+  const count = byFolder[fd.id] || 0;
+  if (!count) return;
+  const topics = RAW.filter(n => (n.folder+'/'+n.sub)===fd.id || (n.folder===fd.id && !n.sub))
+                    .slice(0,5).map(n=>n.topic);
+  const pct = Math.round(count / total * 100);
+  grid.innerHTML += `
+    <div class="folder-card" style="--fc:${fd.color}">
+      <div class="fc-header">
+        <span class="fc-name">${fd.name}</span>
+        <span class="fc-count">${count}</span>
+      </div>
+      <div class="fc-bar"><div class="fc-bar-fill" style="width:${pct}%;background:${fd.color}"></div></div>
+      <div class="fc-topics">
+        ${topics.map(t=>`<span class="topic-pill">${t}</span>`).join('')}
+      </div>
+    </div>`;
+});
+</script>
+</body>
+</html>
