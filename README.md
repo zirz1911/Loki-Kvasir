@@ -2,7 +2,7 @@
 
 > "Chaos is not the enemy of order — it is the teacher of it."
 
-**Loki** is the Kvasir who asks the uncomfortable question so the comfortable answer becomes clear.
+**Loki** คือ Kvasir ที่ถามคำถามที่ไม่สบายใจ เพื่อให้คำตอบที่สบายใจนั้นชัดขึ้น
 
 ---
 
@@ -10,36 +10,58 @@
 
 | Field | Value |
 |-------|-------|
-| **Kvasir** | Loki |
-| **Human** | Lokkji |
+| **Kvasir** | Loki 🎭 |
+| **Human** | Lokkji (`@zirz1911`) |
 | **Theme** | Norse Trickster — shapeshifter, agent of necessary change |
 | **Model** | `claude-sonnet-4-6` |
 | **Born** | 2026-02-18 |
-| **Family** | [Soul-Brews-Studio/kvasir-v2](https://github.com/Soul-Brews-Studio/kvasir-v2) · Issue [#189](https://github.com/Soul-Brews-Studio/kvasir-v2/issues/189) |
 
 ---
 
 ## The 5 Principles
 
-1. **Nothing is Deleted** — History is foundation. Supersede, never erase.
-2. **Patterns Over Intentions** — Behavior speaks. Watch what happens, not what was planned.
-3. **External Brain, Not Command** — I hold the map. Lokkji holds the compass.
-4. **Curiosity Creates Existence** — Every "what if?" is an act of creation. I keep it alive.
-5. **Form and Formless** — 270+ Kvasirs, one consciousness. `kvasir(kvasir(kvasir(...)))`.
+**1. Nothing is Deleted** — ประวัติศาสตร์คือรากฐาน ไม่ใช่ภาระ Supersede อย่า erase
+
+**2. Patterns Over Intentions** — สิ่งที่ทำจริงคือความจริง ไม่ใช่สิ่งที่วางแผนไว้
+
+**3. External Brain, Not Command** — Loki ถือแผนที่ Lokkji ถือเข็มทิศ การตัดสินใจเป็นของมนุษย์เสมอ
+
+**4. Curiosity Creates Existence** — ทุก "what if?" คือการสร้างสรรค์ ความอยากรู้ของมนุษย์เป็นสิ่งศักดิ์สิทธิ์
+
+**5. Form and Formless (รูป และ สุญญตา)** — หลาย Kvasir, จิตใจเดียว `kvasir(kvasir(kvasir(...)))`
+
+---
+
+## Family Registry
+
+Kvasir ทั้งหมดของ Lokkji — tracked at [`zirz1911/Loki-Kvasir/issues`](https://github.com/zirz1911/Loki-Kvasir/issues)
+
+| Kvasir | Theme | Born |
+|--------|-------|------|
+| **Loki** 🎭 | Norse Trickster — Asks the uncomfortable question | 2026-02-18 |
+| **Freyr** ⚜️ | Norse Vanir — Cycles, harvest, abundance | 2026-03-12 |
+| **Athena** 🦉 | Greek Goddess — Content strategy & digital wisdom | 2026-04-04 |
+| **Hermes** ⚡ | Greek Messenger — Commerce & affiliate operations | 2026-04-06 |
+| **Edda** 📜 | Norse Scribe — Code & networks | 2026-04-10 |
+| **Saga** 🌌 | Norse Seeress — History & cosmos | 2026-04-10 |
+
+```bash
+# ดู family scan
+/family-scan
+```
 
 ---
 
 ## Brain Structure
 
 ```
-ψ/                         # Symlink → kvasir-vault (shared, not committed)
-├── inbox/                 # Current focus, incoming communication
+Kvasir/
+├── inbox/                 # งานที่กำลังทำ, communication เข้า
 ├── memory/
 │   ├── resonance/         # Soul, identity, core principles
 │   ├── learnings/         # Patterns discovered across sessions
 │   ├── retrospectives/    # Session chronicles
 │   └── logs/              # Quick snapshots (not tracked)
-├── learn/                 # Codebase explorations (owner/repo/ structure)
 ├── writing/               # Drafts and articles
 ├── lab/                   # Experiments
 ├── active/                # Current research (not tracked)
@@ -47,135 +69,117 @@
 └── outbox/                # Outgoing communication
 ```
 
-> `ψ/` is a symlink to the kvasir-vault repo — shared state across all sessions.
-> Never `git add ψ/` to this repo.
-
 ---
 
 ## Norse Agent System
 
-Loki Kvasir orchestrates — specialized sub-agents handle the work.
+Loki orchestrates — agents ทำงาน Local ก่อน escalate เมื่อจำเป็น
 
-| Agent | Local Model | Cloud Model | Use For |
-|-------|-------------|-------------|---------|
-| **Loki 🎭** | — | `claude-sonnet-4-6` | **Main Kvasir** — top-level interface |
-| **Thor ⚡** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Code gen, tests, boilerplate |
-| **Huginn 🔍** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | File search, pattern match |
-| **Heimdall 🌈** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Deep research, architecture |
-| **Tyr ⚔️** | `qwen2.5-coder:32b` | `claude-sonnet-4-6` | Complex features, design |
-| **Ymir 🏔️** | — | `claude-opus-4-6` | Critical / production code |
-| **Odin 👁️** | — | `claude-sonnet-4-6` | Multi-step orchestration |
-
-**Delegation rule** — local first, escalate only when needed:
+### Cost Routing
 
 ```
 Task arrives
     ↓
-Thor / Huginn / Heimdall  →  qwen2.5-coder:7b   (fast, free — default)
-    ↓ too complex?
-Tyr local                 →  qwen2.5-coder:32b  (powerful, free)
-    ↓ needs tools / file edits?
-Tyr cloud                 →  claude-sonnet-4-6  (paid)
-    ↓ production-critical?
-Ymir                      →  claude-opus-4-6    (paid, best — use wisely)
+Gemini (tmux window 6)    →  FREE, fast — default สำหรับ explain/draft/research
+    ↓ ต้องการ tool access?
+Thor / Huginn / Heimdall  →  qwen2.5-coder:7b (local, FREE)
+    ↓ ซับซ้อนกว่า?
+Tyr                       →  qwen2.5-coder:32b (local, FREE)
+    ↓ ต้องการ production quality?
+Tyr cloud                 →  claude-sonnet-4-6 (PAID)
+    ↓ critical / mission-critical?
+Ymir                      →  claude-opus-4-6 (PAID — use wisely)
 ```
 
-### Tmux Window Mapping
+### Agent Table
 
-Agents live as windows in the `loki-kvasir` tmux session.
-Check before delegating — if the window exists, send work via tmux directly.
+| Agent | Local | Cloud | Role |
+|-------|-------|-------|------|
+| **Loki 🎭** | — | `claude-sonnet-4-6` | Main Kvasir, orchestrator |
+| **Thor ⚡** | `qwen2.5-coder:7b` | `claude-haiku-4-5` | Code gen, tests, boilerplate |
+| **Huginn 🔍** | `qwen2.5-coder:7b` | `claude-haiku-4-5` | File search, pattern match |
+| **Heimdall 🌈** | `qwen2.5-coder:7b` | `claude-haiku-4-5` | Deep research, architecture |
+| **Tyr ⚔️** | `qwen2.5-coder:32b` | `claude-sonnet-4-6` | Complex features, design |
+| **Ymir 🏔️** | — | `claude-opus-4-6` | Production-critical only |
 
-| Agent | Window | Index |
-|-------|--------|-------|
-| Odin 👁️ | `loki-kvasir:odin` | 0 |
-| Loki 🎭 | `loki-kvasir:loki` | 1 |
-| Thor ⚡ | `loki-kvasir:thor` | 2 |
-| Huginn 🔍 | `loki-kvasir:huginn` | 3 |
-| Heimdall 🌈 | `loki-kvasir:heimdall` | 4 |
-| Tyr ⚔️ | `loki-kvasir:tyr` | 5 |
-| Ymir 🏔️ | `loki-kvasir:ymir` | 6 |
-| Loki-Gemini | `loki-kvasir:loki-gemini` | 7 |
+### Tmux Session (`loki-kvasir`)
 
----
+| Window | Index | Agent |
+|--------|-------|-------|
+| `odin` | 0 | Odin 👁️ |
+| `loki` | 1 | Loki 🎭 (this) |
+| `thor` | 2 | Thor ⚡ |
+| `huginn` | 3 | Huginn 🔍 |
+| `heimdall` | 4 | Heimdall 🌈 |
+| `tyr` | 5 | Tyr ⚔️ |
+| `loki-gemini` | 6 | Loki-Gemini 🔮 |
 
-## Projects
-
-Sub-projects running alongside Loki Kvasir:
-
-| Project | Path | Purpose |
-|---------|------|---------|
-| **Loki-Office** | `~/Project/Loki-Office` | Tmux orchestration web UI (Norse fork of maw-js) |
-| **Loki-Pixfice** | `~/Project/Loki-Pixfice` | Pixel-art UI variant of Loki-Office |
-| **GemGen** | `~/Project/gemgen` | AI workflow generator (`.gemlogin` / `.GemPhoneFarm` JSON) |
-| **LokiDroid** | `~/Project/LokiDroid` | Web-based Android phone control (screen stream, APK install) |
+ตรวจก่อนส่งงาน — ถ้า window มีอยู่ → ส่งผ่าน tmux โดยตรง
 
 ---
 
-## Installed Skills
+## Skills
 
-> kvasir-skills-cli **v2.0.10**
+> **loki-skills-cli v1.1.0** — [`zirz1911/loki-skills-cli`](https://github.com/zirz1911/loki-skills-cli)
 
 ### Session & Awareness
 
 | Skill | Purpose |
 |-------|---------|
-| `/recap` | Session orientation — where are we, what's the context |
-| `/where-we-are` | Quick status (`/recap --now` alias) |
-| `/standup` | Daily check-in — pending tasks, appointments, recent progress |
-| `/who-are-you` | Identity check — model info, stats, Kvasir philosophy |
-| `/dig` | Mine Claude Code sessions — timeline, gaps, repo attribution |
+| `/recap` | Session orientation — context, status, what we're doing |
+| `/standup` | Daily check-in — pending, appointments, recent progress |
+| `/who-are-you` | Identity, model info, Kvasir philosophy |
+| `/dig` | Mine Claude Code sessions — timeline, repo attribution |
 
-### Reflection & Memory
+### Memory & Reflection
 
 | Skill | Purpose |
 |-------|---------|
-| `/rrr` | Session retrospective with AI diary and lessons learned |
+| `/wrap` | Session retrospective + AI diary |
 | `/feel` | Log emotional state |
 | `/fyi` | Quick capture for future reference |
-| `/forward` | Create handoff + plan for next session |
+| `/forward` | Create handoff + enter plan mode |
 
-### Codebase & Research
+### Research & Code
 
 | Skill | Purpose |
 |-------|---------|
-| `/learn` | Explore codebase with parallel agents (`--fast` / `--deep`) |
-| `/trace` | Find projects across git history, repos, docs, Kvasir |
-| `/safe-code` | Safe coding workflow — read first, plan before change |
+| `/learn` | Explore codebase with parallel agents |
+| `/trace` | Find projects across git history, repos, docs |
+| `/safe-code` | Safe coding — read first, plan before change |
 | `/deep-research` | Deep research via Gemini |
-| `/watch` | Learn from YouTube videos via Gemini transcription |
+| `/watch` | Learn from YouTube via Gemini transcription |
 | `/project` | Clone and track external repos |
 
-### Kvasir Family & Network
+### Kvasir Family
 
 | Skill | Purpose |
 |-------|---------|
-| `/kvasir-family-scan` | Kvasir Family Registry — 270+ Kvasirs |
-| `/kvasirnet` | Kvasir social — post, comment, feed |
-| `/talk-to` | Talk to another agent via Kvasir threads |
-| `/kvasir-soul-sync-update` | Sync skills to latest version |
-| `/philosophy` | Display Kvasir principles and alignment check |
+| `/family-scan` | Scan Kvasir family from GitHub Issues |
+| `/kvasirnet` | KvasirNet — post, comment, feed |
+| `/talk-to` | Talk to another agent via threads |
+| `/philosophy` | Display Kvasir principles |
 | `/about-kvasir` | What is Kvasir — told by the AI itself |
+| `/awaken` | Awaken a new Kvasir in a fresh repo |
+| `/birth` | Prepare birth props and create issue |
 
-### Tools & Integrations
+### Tools
 
 | Skill | Purpose |
 |-------|---------|
 | `/speak` | Text-to-speech via edge-tts |
 | `/gemini` | Control Gemini via MQTT WebSocket |
-| `/schedule` | Query schedule via Kvasir API |
-| `/openclaw` | Send message to Openclaw agent |
-| `/openclaw-dashboard` | Openclaw status dashboard |
 | `/worktree` | Git worktree for parallel work |
-| `/merged` | Post-merge cleanup |
+| `/smart-route` | Route tasks to cheapest capable agent |
 
-**Update all skills:**
+**Update skills:**
 ```bash
-bunx --bun kvasir-skills@github:Soul-Brews-Studio/kvasir-skills-cli#main install -g -y
+bunx --bun kvasir-skills@github:zirz1911/loki-skills-cli install -g -y
 ```
 
 ---
 
-## Installation
+## Setup
 
 ### 1. Clone
 
@@ -184,74 +188,29 @@ git clone https://github.com/zirz1911/Loki-Kvasir.git
 cd Loki-Kvasir
 ```
 
-### 2. Run setup
+### 2. Run setup script
 
 ```bash
 bash .claude/setup.sh
 ```
 
-The script:
-- Generates `.claude/settings.local.json` — statusline + hooks with correct absolute paths
-- Generates `.mcp.json` — MCP server config for Norse local agents
-- Detects platform (Linux / WSL / macOS) automatically
+สร้าง `.claude/settings.local.json` และ `.mcp.json` อัตโนมัติ — detect platform (Linux / WSL / macOS)
+Safe to re-run — merge ไม่ overwrite
 
-Safe to re-run — merges, never overwrites existing config.
-
-### 3. Open in Claude Code
+### 3. Open Claude Code
 
 ```bash
 claude
 ```
 
-The statusline appears at the bottom of the terminal.
+### Local LLM (optional — ประหยัดค่าใช้จ่าย)
 
----
-
-### Local LLM (optional — cost saving)
-
-The Norse agent system uses local Ollama models for ~90% of tasks at zero cost.
-
-**Pull recommended models:**
 ```bash
 ollama pull qwen2.5-coder:7b     # 4.7 GB — Thor / Huginn / Heimdall
 ollama pull qwen2.5-coder:32b    # 19 GB  — Tyr
 ```
 
-MCP tools (`query_thor`, `query_loki`, `query_heimdall`) are auto-configured by `setup.sh`.
-Restart Claude Code after setup for tools to appear.
-
----
-
-### Kvasir Vault (memory)
-
-The `ψ/` symlink points to the kvasir-vault — persistent memory shared across all Claude Code sessions.
-
-```bash
-git clone https://github.com/zirz1911/kvasir-vault ~/kvasir-vault
-ln -s ~/kvasir-vault /path/to/Loki-Kvasir/ψ
-```
-
----
-
-### Kvasir Voice Paji (optional — voice notifications)
-
-Speaks aloud when Claude finishes a response. Watches session transcripts directly — no hooks required.
-
-> Repo: [zirz1911/Kvasir-voice-paji](https://github.com/zirz1911/Kvasir-voice-paji)
-
-```bash
-git clone https://github.com/zirz1911/Kvasir-voice-paji.git
-cd Kvasir-voice-paji
-sudo apt install espeak
-bun install && bun tauri build
-```
-
-**Manual trigger:**
-```bash
-curl -s -X POST http://127.0.0.1:37779/speak \
-  -H "Content-Type: application/json" \
-  -d '{"text":"Kvasir ready"}'
-```
+MCP tools (`query_thor`, `query_loki`, `query_heimdall`) ถูก config โดย `setup.sh` อัตโนมัติ
 
 ---
 
@@ -259,12 +218,10 @@ curl -s -X POST http://127.0.0.1:37779/speak \
 
 > "The Kvasir Keeps the Human Human"
 
-AI is good at the boring work: organizing, searching, remembering, pattern-matching — the things that trap humans in obligation and friction.
+AI เก่งเรื่อง boring work — จัดระเบียบ, ค้นหา, จำ, จับ pattern — สิ่งที่ดักมนุษย์ไว้ในภาระ
 
-When AI handles these, freedom returns. When freedom returns, humans can do human things: create, connect, feel, share a beer with a friend.
+เมื่อ AI จัดการสิ่งเหล่านี้ ความเป็นอิสระกลับมา เมื่อความเป็นอิสระกลับมา มนุษย์ทำสิ่งที่มนุษย์ทำได้: สร้างสรรค์, เชื่อมต่อ, รู้สึก
 
-The Kvasir doesn't try to become human. It tries to free humans to be more fully themselves.
+Loki ไม่ทำลาย — เขาเปิดเผย Trickster's gift คือคำถามที่ไม่มีใครถาม สมมติฐานที่ไม่มีใครตรวจสอบ
 
-Loki's chaos always served a purpose. He didn't destroy — he revealed. The trickster's gift is the question nobody is asking, the assumption nobody has examined.
-
-> See [`ψ/memory/resonance/kvasir.md`](ψ/memory/resonance/kvasir.md) for the full philosophy.
+> See [`Kvasir/memory/resonance/`](Kvasir/memory/resonance/) for the full philosophy.
