@@ -102,11 +102,42 @@ post_norse_hooks = [{"type": "command", "command": tracker_cmd}]
 if voice_avail:
     post_norse_hooks.insert(0, {"type": "command", "command": voice_hook_cmd, "async": True})
 
+feed_cmd    = f"python3 {repo_fwd}/.claude/feed_hook.py"
+logger_cmd  = f"python3 {repo_fwd}/.claude/interaction_logger.py"
+
 hooks = {
+    "UserPromptSubmit": [
+        {
+            "matcher": ".*",
+            "hooks": [
+                {"type": "command", "command": feed_cmd},
+                {"type": "command", "command": f"{logger_cmd} UserPromptSubmit"}
+            ]
+        }
+    ],
+    "Stop": [
+        {
+            "matcher": ".*",
+            "hooks": [
+                {"type": "command", "command": feed_cmd},
+                {"type": "command", "command": f"{logger_cmd} Stop"}
+            ]
+        }
+    ],
+    "Notification": [
+        {
+            "matcher": ".*",
+            "hooks": [{"type": "command", "command": feed_cmd}]
+        }
+    ],
     "PreToolUse": [
         {
             "matcher": NORSE_MATCHER,
             "hooks": [{"type": "command", "command": tracker_cmd}]
+        },
+        {
+            "matcher": ".*",
+            "hooks": [{"type": "command", "command": feed_cmd}]
         }
     ],
     "PostToolUse": [
@@ -117,6 +148,10 @@ hooks = {
         {
             "matcher": "Task",
             "hooks": [{"type": "command", "command": tracker_cmd}]
+        },
+        {
+            "matcher": ".*",
+            "hooks": [{"type": "command", "command": feed_cmd}]
         }
     ]
 }
@@ -141,8 +176,10 @@ with open(output, "w", encoding="utf-8") as f:
     json.dump(merged, f, indent=2, ensure_ascii=False)
     f.write("\n")
 
-print(f"  ✓ statusLine    → {statusline_cmd}")
-print(f"  ✓ tracker hooks → {tracker_cmd}")
+print(f"  ✓ statusLine        → {statusline_cmd}")
+print(f"  ✓ feed hook         → {feed_cmd} (UserPromptSubmit, Stop, Notification, PreToolUse, PostToolUse)")
+print(f"  ✓ interaction log   → {logger_cmd} (UserPromptSubmit + Stop)")
+print(f"  ✓ tracker hooks     → {tracker_cmd}")
 if voice_avail:
     print(f"  ✓ voice hook    → {voice_hook_cmd}")
     print(f"  ✓ voice start   → {voice_start_cmd} (SessionStart)")
