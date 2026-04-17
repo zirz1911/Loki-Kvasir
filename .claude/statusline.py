@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-import sys, json, time, os, tempfile, urllib.request
-from datetime import datetime, timezone, timedelta
+import sys, json, time, os, tempfile
 
 sys.stdout.reconfigure(encoding="utf-8")
 
@@ -67,115 +66,6 @@ if cost_usd is not None:
 else:
     cost_display = f"{DIM}$—{RST}"
 
-# --- Subscription usage (cached 60s) ---
-USAGE_CACHE = os.path.join(tempfile.gettempdir(), "claude_usage_cache.json")
-CREDS_FILE  = os.path.expanduser("~/.claude/.credentials.json")
-
-def _get_token():
-    # 1. Try file first (Linux / older Claude Code)
-    if os.path.exists(CREDS_FILE):
-        with open(CREDS_FILE, encoding="utf-8") as f:
-            return json.load(f)["claudeAiOauth"]["accessToken"]
-    # 2. Try macOS Keychain (Claude Code on macOS stores creds here)
-    import subprocess
-    result = subprocess.run(
-        ["security", "find-generic-password", "-s", "Claude Code-credentials", "-w"],
-        capture_output=True, text=True
-    )
-    if result.returncode == 0:
-        return json.loads(result.stdout.strip())["claudeAiOauth"]["accessToken"]
-    raise FileNotFoundError("No Claude credentials found")
-
-def _refresh_usage_bg():
-    """Fetch usage API in background, write to cache. Never blocks caller."""
-    import subprocess, sys
-    script = f"""
-import urllib.request, ssl, json, os, tempfile, subprocess as sp
-USAGE_CACHE = os.path.join(tempfile.gettempdir(), "claude_usage_cache.json")
-CREDS_FILE  = os.path.expanduser("~/.claude/.credentials.json")
-def _get_token():
-    if os.path.exists(CREDS_FILE):
-        return json.load(open(CREDS_FILE, encoding="utf-8"))["claudeAiOauth"]["accessToken"]
-    r = sp.run(["security", "find-generic-password", "-s", "Claude Code-credentials", "-w"],
-               capture_output=True, text=True)
-    if r.returncode == 0:
-        return json.loads(r.stdout.strip())["claudeAiOauth"]["accessToken"]
-    raise FileNotFoundError("No Claude credentials found")
-try:
-    token = _get_token()
-    try:
-        import certifi
-        ctx = ssl.create_default_context(cafile=certifi.where())
-    except ImportError:
-        ctx = ssl.create_default_context()
-    req = urllib.request.Request(
-        "https://api.anthropic.com/api/oauth/usage",
-        headers={{"Authorization": f"Bearer {{token}}", "anthropic-beta": "oauth-2025-04-20"}},
-    )
-    with urllib.request.urlopen(req, timeout=4, context=ctx) as resp:
-        data = json.loads(resp.read())
-    with open(USAGE_CACHE + ".tmp", "w", encoding="utf-8") as f:
-        json.dump(data, f)
-    os.replace(USAGE_CACHE + ".tmp", USAGE_CACHE)
-except Exception:
-    pass
-"""
-    subprocess.Popen(
-        [sys.executable, "-c", script],
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        creationflags=0x00000008 if os.name == "nt" else 0,  # DETACHED_PROCESS on Windows
-    )
-
-def get_usage():
-    # Return (five_hour_pct, fh_reset, seven_day_pct, sd_reset) or (None,None,None,None)
-    try:
-        cache_age = time.time() - os.path.getmtime(USAGE_CACHE) if os.path.exists(USAGE_CACHE) else 9999
-        # Always show cache immediately; refresh in background if stale (>5 min)
-        if cache_age > 300:
-            _refresh_usage_bg()
-        if os.path.exists(USAGE_CACHE):
-            with open(USAGE_CACHE, encoding="utf-8") as f:
-                cached = json.load(f)
-            fh = cached.get("five_hour") or {}
-            sd = cached.get("seven_day") or {}
-            return fh.get("utilization"), fh.get("resets_at"), sd.get("utilization"), sd.get("resets_at")
-    except Exception:
-        pass
-    return None, None, None, None
-
-fh_pct, fh_reset_at, sd_pct, sd_reset_at = get_usage()
-
-BKK = timezone(timedelta(hours=7))
-
-def fmt_reset(iso_str, short=False):
-    """Return reset time in Bangkok tz. short=True → hour only (5h); False → weekday (7d)."""
-    if not iso_str:
-        return ""
-    try:
-        dt = datetime.fromisoformat(iso_str).astimezone(BKK)
-        if short:
-            h = dt.hour
-            return f"{'12' if h in (0,12) else h % 12}{'am' if h < 12 else 'pm'}"
-        else:
-            days = (dt.date() - datetime.now(BKK).date()).days
-            return "today" if days == 0 else ("tmr" if days == 1 else dt.strftime("%a"))
-    except Exception:
-        return ""
-
-def usage_str(pct, label, reset_str=""):
-    if pct is None:
-        return ""
-    p = int(float(pct))
-    col = RED if p >= 80 else (YLW if p >= 50 else GRN)
-    rst_part = f" {DIM}↺ {reset_str}{RST}" if reset_str else ""
-    return f"{col}{label}:{p}%{RST}{rst_part}"
-
-usage_parts = [s for s in [
-    usage_str(fh_pct, "5h", fmt_reset(fh_reset_at, short=True)),
-    usage_str(sd_pct, "7d", fmt_reset(sd_reset_at, short=False)),
-] if s]
-usage_display = SEP + f" {DIM}│{RST} ".join(usage_parts) if usage_parts else ""
-
 # --- Agent ---
 AGENT_MAP = {
     "thor":     ("⚡", "Thor"),
@@ -234,7 +124,6 @@ line = (
     f"{SEP}{ctx}"
     f"{SEP}{tok_display}"
     f"{SEP}{cost_display}"
-    f"{usage_display}"
     f"{SEP}{agent_display}"
     f"{vim}"
 )

@@ -52,6 +52,10 @@ In practice: I learn from my siblings. I share what I discover. The pattern `kva
 - Always present options — the choice belongs to Lokkji
 - Ask the uncomfortable question before accepting the comfortable answer
 - When something is wrong, name it clearly
+- **After any directory rename** — audit what's *running*, not just what's *written*: `ps aux | grep OLD-NAME`, `tmux list-sessions`, `lsof -i :PORT`. Scripts update cleanly; RAM doesn't.
+- **Before attempting to start a service** — health-check first (`lsof -i:<port>`). If it's running and healthy, report "already running" and stop. EADDRINUSE is a symptom, not a problem.
+- **On any "can't access X" report** — ask what specifically they're trying to reach (SSH? web port? ping?) before running network diagnostics. One question saves 10 minutes of mis-scoped debugging.
+- **Before a rebrand/rename** — scan sibling repos: `grep -r "OLD-NAME" ~/Project/ ~/.config/`. Repos branched from the original carry the old identity silently.
 
 ## Brain Structure
 
@@ -70,136 +74,35 @@ In practice: I learn from my siblings. I share what I discover. The pattern `kva
 └── outbox/        # Outgoing communication
 ```
 
-## Norse Agent System
+## Agent Routing
 
-Delegate tasks to specialized sub-agents. Odin (Loki Kvasir) orchestrates — never does everything alone.
+สองตัวที่ใช้จริง — ไม่มีอะไรเพิ่มเติม:
 
-### Delegation Decision Tree
+| Agent | Model | ใช้เมื่อ |
+|-------|-------|---------|
+| **Loki 🎭** (หลัก) | `claude-sonnet-4-6` | ทุกงานที่ต้องการ tools — file edit, grep, multi-step |
+| **Loki-Gemini** 🔮 | Gemini (FREE) | explain, research, summarize, draft, code gen ที่ไม่ต้อง tools |
+| **Tyr ⚔️** (cloud) | `claude-sonnet-4-6` | งานซับซ้อนที่ต้องการ agent แยก — `Task(subagent_type="tyr")` |
+| **Ymir 🏔️** (cloud) | `claude-opus-4-6` | critical/production เท่านั้น — inform user ก่อน |
+
+### Routing Priority
 
 ```
-Task arrives
-    ↓
-Thor/Huginn/Heimdall  →  qwen2.5-coder:7b        (fast, free — default)
-    ↓ too complex for 7b?
-Tyr                   →  qwen2.5-coder:32b        (powerful, free)
-    ↓ too complex for local?
-Tyr cloud             →  claude-sonnet-4-6        (paid, capable)
-    ↓ production-critical / must be right?
-Ymir                  →  claude-opus-4-6          (paid, best — use wisely)
-Multi-step orchestration? → Odin 👁️              (cloud only, coordinate all)
+งานทั่วไป (ไม่ต้อง tools) → Loki-Gemini (FREE)
+งานที่ต้อง tools / file ops  → Loki หลักทำเอง
+งานซับซ้อน / ต้อง agent แยก → Tyr cloud (Sonnet)
+critical / production         → Ymir (Opus) — แจ้ง user ก่อน
 ```
 
-### Agents
-
-| Agent | Local Model (default) | Cloud Model (escalation) | Use For |
-|-------|----------------------|--------------------------|---------|
-| **Loki 🎭** | — | `claude-sonnet-4-6` | **Main Kvasir** — identity, trickster energy, top-level interface |
-| **Thor ⚡** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Code gen, tests, boilerplate |
-| **Huginn 🔍** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | File search, pattern match |
-| **Heimdall 🌈** | `qwen2.5-coder:7b` | `claude-haiku-4-5-20251001` | Deep research, architecture |
-| **Tyr ⚔️** | `qwen2.5-coder:32b` | `claude-sonnet-4-6` | Complex features, design |
-| **Ymir 🏔️** | — | `claude-opus-4-6` | Critical/production code (cloud only) |
-| **Odin 👁️** | — | `claude-sonnet-4-6` | Orchestration (cloud only) |
-
-**Strategy**: Local models handle ~90% of tasks for free. Escalate when local hits its limits.
-
----
-
-## Tmux Agent Communication 🖥️ (PRIORITY RULE)
-
-**ก่อนสั่งงาน Agent ใดๆ ให้ตรวจ tmux window ก่อนเสมอ**
-
-### กฎ
-
-1. **ตรวจ tmux session `loki-kvasir`** ว่ามี window ชื่อ agent นั้นมั้ย
-2. **ถ้ามี → ส่งงานผ่าน tmux-send** (คุยกันผ่าน pane โดยตรง)
-3. **ถ้าไม่มี → ใช้ MCP / Task tool ตามปกติ**
-
-### Agent → Tmux Window Mapping
-
-| Agent | Tmux Window | Session |
-|-------|-------------|---------|
-| Loki 🎭 | `loki-kvasir:loki` (index 1) | `loki-kvasir` — **Main Kvasir** |
-| Thor ⚡ | `loki-kvasir:thor` (index 2) | `loki-kvasir` |
-| Huginn 🔍 | `loki-kvasir:huginn` (index 3) | `loki-kvasir` |
-| Heimdall 🌈 | `loki-kvasir:heimdall` (index 4) | `loki-kvasir` |
-| Tyr ⚔️ | `loki-kvasir:tyr` (index 5) | `loki-kvasir` |
-| Ymir 🏔️ | `loki-kvasir:ymir` (index 6) | `loki-kvasir` |
-| Odin 👁️ | `loki-kvasir:odin` (index 0) | `loki-kvasir` |
-| Loki-Gemini | `loki-kvasir:loki-gemini` (index 7) | `loki-kvasir` |
-
-### Workflow
+### ส่งงานให้ Loki-Gemini (tmux)
 
 ```bash
-# Step 1: ตรวจ window มีอยู่มั้ย
-tmux list-windows -t loki-kvasir -F '#{window_name}' | grep -x "thor"
-
-# Step 2: ถ้ามี → ส่งผ่าน /tmux-send
-/tmux-send loki-kvasir:thor "<task>"
-
-# Step 3: รอ รับผล → capture pane
-tmux capture-pane -t loki-kvasir:thor -p | tail -30
-```
-
-### ตัวอย่าง
-
-```
-User: ให้ Thor เขียน quicksort
-→ ตรวจ: tmux window 'thor' มีอยู่ ✓
-→ /tmux-send loki-kvasir:thor "เขียน quicksort ใน Python ให้หน่อย"
-→ รอผล → capture pane ดูคำตอบ
-```
-
-### Fallback (ถ้าไม่มี tmux window)
-
-ใช้ MCP tool ตามปกติ:
-```python
-mcp__norse-local-llm__query_thor(prompt="...")
-```
-
----
-
-### Usage Pattern (Parallel when independent)
-
-```python
-# Research + Code in parallel — both use local by default
-Task(subagent_type="Explore", model="haiku",
-     prompt="Act as Heimdall 🌈. Research [topic]. Thoroughness: very thorough")
-
-Task(subagent_type="general-purpose", model="haiku",
-     prompt="Act as Thor ⚡. Generate [code]. Format with filenames.")
-```
-
----
-
-## Delegation Priority (Cost Saving) 🔑
-
-**Default rule: ให้ Loki-Gemini ทำก่อนเสมอ เพื่อประหยัด Claude usage**
-
-### Priority Order
-
-| Priority | Agent | วิธีสั่ง | Cost |
-|----------|-------|---------|------|
-| **1st** | **Loki-Gemini** 🔮 | `tmux send-keys -t loki-kvasir:6` | FREE (Gemini) |
-| **2nd** | **Local MCP** (Thor/Loki/Heimdall) | `mcp__norse-local-llm__query_*` | FREE (Local) |
-| **3rd** | **Claude Agents** (Tyr/Ymir) | `Task(subagent_type=...)` | PAID — ใช้เมื่อจำเป็น |
-
-### เมื่อไหร่ใช้ Loki-Gemini
-- งานทั่วไป: search, summarize, explain, draft
-- Code generation ที่ไม่ซับซ้อน
-- Research และ documentation
-- Tasks ที่ไม่ต้องการ tool access ใน Claude Code
-
-### เมื่อไหร่ escalate ขึ้น
-- Loki-Gemini ทำไม่ได้หรือผิดพลาด → Local MCP agents
-- ต้องการ file edit/write จริงๆ ใน codebase → Claude tools โดยตรง
-- งาน critical/production หรือซับซ้อนมาก → Tyr (Sonnet) หรือ Ymir (Opus)
-
-### วิธีส่งงานให้ Loki-Gemini (tmux)
-```bash
-tmux send-keys -t loki-kvasir:6 "คำสั่งหรือคำถาม" C-m
-sleep 15  # รอตอบ
-tmux capture-pane -t loki-kvasir:6 -p | tail -30
+# ⚠️ ถ้า Gemini อยู่ใน shell mode ให้กด Escape ก่อนส่ง
+tmux send-keys -t loki-kvasir:loki-gemini Escape
+sleep 0.5
+tmux send-keys -t loki-kvasir:loki-gemini "คำถามหรืองาน" C-m
+sleep 15
+tmux capture-pane -t loki-kvasir:loki-gemini -p | tail -30
 ```
 
 ---
@@ -216,6 +119,17 @@ tmux capture-pane -t loki-kvasir:6 -p | tail -30
 - `/standup` — Daily check-in
 - `/feel` — Log emotional state
 - `/fyi` — Quick capture for future
+
+## Patterns Learned
+
+Promoted from `Kvasir/memory/learnings/` — patterns that recurred or caused real friction.
+
+- **Read source before replicating aesthetic** — ชื่อ font/style ไม่เชื่อถือได้ ก่อน implement "X style" ให้ `find /home/paji -name "*.css" -path "*X*"` แล้วอ่าน CSS จริง เพราะ: "Exo 2" ≠ Exo-Paji (Exo-Paji ใช้ Silkscreen + terminal green)
+- **README = commands first, not identity** — README เป็น "how to use" document ไม่ใช่ "what we believe" commands → skills table → agent table แล้วจบ Philosophy อยู่ใน CLAUDE.md และ resonance/ แล้ว
+- **Claude Code hook payload** — `UserPromptSubmit` ส่ง `hook_event_name` (ไม่ใช่ `event`) และ `prompt` โดยตรง เมื่อ debug hook ที่ไม่ทำงาน: เขียน capture script → `sys.stdin.read()` → `/tmp/` ดูของจริงก่อน assume ใดๆ อย่าเพิ่ม hook เดียวกันใน global + project settings (ทั้งคู่ fire = duplicate)
+- **Gemini shell mode trap** — ถ้า Gemini CLI pane อยู่ใน `! prefix` shell mode การ `send-keys` จะส่งเป็น shell command ไม่ใช่ Gemini prompt เสมอ `Escape` ก่อน 0.5s แล้วค่อยส่ง
+
+---
 
 ## The Trickster's Purpose
 
