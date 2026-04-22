@@ -70,17 +70,14 @@ else:
 AGENT_MAP = {
     "thor":     ("⚡", "Thor"),
     "loki":     ("🔮", "Loki"),
-    "heimdall": ("🌈", "Heimdall"),
-    "tyr":      ("⚔️", "Tyr"),
-    "ymir":     ("🏔️", "Ymir"),
-    "odin":     ("👁️", "Odin"),
+    "Odin":     ("👁️", "Odin"),
 }
 
 def model_to_icon_name(model_str):
     m = model_str.lower()
     if "haiku" in m: return ("⚡", "Thor")
-    if "opus"  in m: return ("🏔️", "Ymir")
-    return ("👁️", "Odin")
+    if "sonnet"  in m: return ("👁️", "Odin")
+    return ("🔮", "Loki")
 
 # Base agent: explicit > model inference
 if agent:
